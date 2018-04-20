@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{% block css %}
+<link href="https://cdn.bootcss.com/chosen/1.8.3/chosen.min.css" rel="stylesheet">
+    <style>
+        .toolbar {
+            border: solid 1px #ebebeb;
+        }
+
+        .editor {
+            min-height: 120px;
+        }
+
+        hr {
+            width: 50%;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="ask-header">
+        <div class="container-fulid">
+            <div class="row">
+                <div class="col-xs-2"></div>
+                <div class="col-xs-8">
+                    <div style="padding: 16px">
+                        <div class="row">
+                            <div class="col-xs-9">
+                                {% for topic in topics_list %}
+                                    <span><a class="ask-topic" href="#">{{ topic.name }}</a></span>
+                                {% endfor %}
+                                <h1>{{ ask.title }}</h1>
+                                <div class="ask-content">{{ ask.content }}</div>
+                            </div>
+                            <div class="col-xs-3">
+                                <div class="NumberBoard" style="border-left: solid 1px #ebebeb">
+                                    <div class="NumberBoard-itemname">被浏览</div>
+                                    <div class="NumberBoard-itemnum">32</div>
+                                </div>
+                                <div class="NumberBoard">
+                                    <div class="NumberBoard-itemname">关注者</div>
+                                    <div class="NumberBoard-itemnum">11</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="Button Button-blue" style="margin-left: 0">关注问题</button>
+                        <button id="answer-btn" class="Button Button-white">
+                            <i class="icon icon-pencil"></i> 写回答</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fulid">
+        <div class="row">
+            <div class="col-xs-2"></div>
+            <div class="col-xs-8">
+                <div class="row">
+                    <div class="col-xs-8">
+                        <div id="answer-card" class="card" style="display: none">
+                            <div class="answer-card-header">
+                                <img src="{{ user.get_image_url }}" class="img-rounded" width="38px" height="38px">
+                                <div class="user-info">
+                                    <div class="user-name">{{ user.nickname }}</div>
+                                    <div class="user-intro">{{ user.intro }}</div>
+                                </div>
+                            </div>
+
+                            <div id="editor1" class="toolbar"></div>
+                            <div id="editor2" class="editor"></div>
+                            <div style="min-height: 40px">
+                                <form action="{% url 'asks:post_answer' ask.id %}" method="post">
+                                    {% csrf_token %}
+                                    {{ form.content }}
+                                    {{ form.content_text }}
+                                    <button type="submit" class="btn btn-primary"
+                                            style="float: right;margin-right: 10px">回答问题
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card" id="answers-list">
+                            <div style="padding: 10px; font-size: 15px; font-weight: 600">{{ ask.answers.count }}个回答</div>
+                            {% for answer in answers %}
+                                <div class="answer-block">
+                                    <div class="answer-card-header">
+                                        <img src="{{ answer.author.get_image_url }}" class="img-rounded" width="38px" height="38px">
+                                        <div class="user-info">
+                                            <a href="{% url 'users:detail' answer.author.id %}" class="user-name">{{ answer.author.nickname }}</a>
+                                            <div class="user-intro">{{ answer.author.intro }}</div>
+                                        </div>
+                                    </div>
+
+                                    {% if answer.content_text|length < 180 %}
+                                        <div class="answer-content">{{ answer.content|safe }}</div>
+                                    {% else %}
+                                        <div class="answer-content">
+                                            <span>{{ answer.content_text|slice:':150'|safe }} ...</span>
+                                            <button class="readmore" onclick="readmore(this, {{ answer.id }});return false">阅读全文 <i class="icon icon-angle-down"></i></button>
+                                        </div>
+
+                                    {% endif %}
+                                    <div class="answer-footer" style="padding: 0 10px 10px 10px">
+{#                                        {% if user.is_voted(answer) %}#}
+                                        {% if answer in vote_list %}
+                                            <button class="vote" onclick="voteUp(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+                                            <button class="voted" onclick="voteDown(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+                                        {% else %}
+                                            <button class="vote" onclick="voteUp(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+                                            <button class="voted" onclick="voteDown(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+                                        {% endif %}
+                                        <button class="vote" onclick="return false"><i class="icon icon-caret-down"></i></button>
+                                        <button class="footer-tab" onclick="showComments(this, {{ answer.id }})"><i class="icon icon-comment"></i> {{ answer.comments.count }}条评论</button>
+                                        <button class="footer-tab" onclick="hideComments(this, {{ answer.id }})" hidden><i class="icon icon-comment"></i> 收起评论</button>
+                                        <button class="footer-tab" onclick="return false"><i class="icon icon-share-alt"></i> 分享</button>
+                                        {% if user.is_staff or user == answer.author %}
+                                            <form style="display: inline" action="{% url 'answers:delete' pk=answer.id %}" method="post">{% csrf_token %}
+                                                <button class="footer-tab" type="submit"><i class="icon icon-trash"></i> 删除</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+
+                                    <div id="commentList-{{ answer.id }}" class="comments-container" hidden>
+                                        <div class="user-header">{{ answer.comments.count }}条评论</div>
+
+                                        <div id="replyEditor-{{ answer.id }}" class="comment-editor" style="padding: 0 0 5px;" hidden>
+                                            <form style="display: flex" action="{% url 'comments:post_comment' pk=answer.id %}" method="post">
+                                                {% csrf_token %}
+                                                <textarea class="form-control" placeholder="评论" rows="1" name="content" required></textarea>
+                                                <input name="reply_id" value="" type="hidden">
+                                                <button class="Button Button-blue" style="margin-left: 10px; width: 80px;">评论</button>
+                                            </form>
+                                            <button class="footer-tab" onclick="cancelReply(this)" style="margin: 10px 0 0 0">&nbsp;&nbsp;&nbsp;取消</button>
+                                        </div>
+
+                                        {% for comment in answer.comments.all %}
+                                            <div class="comment-item">
+                                                <div class="commentItem-meta">
+                                                    <span>
+                                                        <img src="{{ comment.author.get_image_url }}" class="img-rounded" width="24px" height="24px">
+                                                        <a style="color: black" href="{% url 'users:detail' comment.author.id %}">{{ comment.author.nickname }}</a>
+                                                        {% if comment.reply_to %}
+                                                            <span style="color: #8590a6">&nbsp;回复&nbsp;</span>
+                                                            <a style="color: black" href="{% url 'users:detail' comment.reply_to.author.id %}">{{ comment.reply_to.author.nickname }}</a>
+                                                        {% endif %}
+                                                        <span class="datetime" style="float: right">{{ comment.create_time|timesince }}前</span>
+                                                    </span>
+                                                </div>
+                                                <div class="commentItem-content">{{ comment.content }}</div>
+
+                                                <button class="footer-tab reply-btn" onclick="reply(this, {{ answer.id }}, {{ comment.id }})" style="margin: 0"><i class="icon icon-share-alt"></i> 回复</button>
+                                                {% if user.is_staff or user == comment.author or user == answer.author %}
+                                                    <form style="display: inline" action="{% url 'comments:delete' pk=comment.id %}" method="post">{% csrf_token %}
+                                                        <button class="footer-tab reply-btn" type="submit" style="margin: 0"><i class="icon icon-trash"></i> 删除</button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+
+                                        {% endfor %}
+                                        <div class="comment-editor">
+                                            <form style="display: flex" action="{% url 'comments:post_comment' pk=answer.id %}" method="post">
+                                                {% csrf_token %}
+                                                <textarea class="form-control" placeholder="评论" rows="1" name="content" required></textarea>
+                                                <input name="reply_id" value="" type="hidden">
+                                                <button class="Button Button-blue" style="margin-left: 10px; width: 80px;">评论</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {% if answers.has_next %}
+                                <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
+                            {% endif %}
+                        </div>
+
+
+                    </div>
+
+                    <div class="col-xs-4">
+                        <div class="card">
+                            <div class="card-header">
+                                其他问题
+                            </div>
+                            {% for ask in asks %}
+                                <div class="card-list">
+                                    <a href="{% url 'asks:detail' ask.id %}">{{ ask.title }}</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <footer style="line-height: 26px">
+                            <a>刘看山</a><span> · </span><a>知乎指南</a><span> · </span><a>知乎协议</a><span> · </span><a>隐私政策</a><br>
+                            <a>应用</a><span> · </span><a>工作</a><span> · </span><a>申请开通知乎机构号</a><br>
+                            <a>侵权举报</a><span> · </span><a>网上有害信息举报专区</a><br>
+                            <a>违法和不良信息举报: 010-82716601</a><br>
+                            <a>儿童色情信息举报专区</a><br>
+                            <a>联系我们 © 2018 知乎</a><br>
+                        </footer>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+    <script>
+        var E = window.wangEditor;
+        var editor = new E('#editor1', '#editor2');
+        var answerText = $('#{{ form.content_text.id_for_label }}');
+        var answerHtml = $('#{{ form.content.id_for_label }}');
+        editor.customConfig.zIndex = 0;
+        editor.customConfig.onchange = function () {
+            // 监控变化，同步更新到 textarea
+            answerText.val(editor.txt.text());
+            answerHtml.val(editor.txt.html());
+        };
+        editor.customConfig.menus = [
+            'bold',  // 粗体
+            'italic',  // 斜体
+            'head',  // 标题
+            'quote',  // 引用
+            'code',  // 插入代码
+            'list',  // 列表
+            'link',  // 插入链接
+            'image'  // 插入图片
+        ];
+        editor.create();
+        // 初始化 textarea 的值
+        answerText.val(editor.txt.text());
+        answerHtml.val(editor.txt.html());
+
+        function readmore(x, id) {
+            var link = '/answers/' + id + '/content/';
+            fetch(link, {
+                method: 'GET',
+                credentials: 'include'
+            }).then(function (response) {
+                return response.json()
+            }).then(function (data) {
+                if (!data.r) {
+                    $(x).siblings('span').hide();
+                    $(x).parent().html(data.content).append('<div class="answer-time">编辑于'+ data.create_time + '</p>');
+                } else {
+                    alert('error!')
+                }
+            });
+        }
+        function reply(x, answer_id, comment_id) {
+            var replyEeditor = $('#replyEditor-'+answer_id);
+            $('.reply-btn').show();
+            $(x).hide().before(replyEeditor);
+            replyEeditor.show().find("input[name='reply_id']").val(comment_id);
+        }
+        function cancelReply(x) {
+            $(x).parent().hide();
+            $('.reply-btn').show();
+        }
+        function showComments(x, id) {
+            $('#commentList-'+id).show();
+            $(x).hide().next().show();
+        }
+        function hideComments(x, id) {
+            $('#commentList-'+id).hide();
+            $(x).hide().prev().show();
+        }
+        function voteUp(x, id) {
+            var link = '/answers/'+id+'/voteup/';
+            fetch(link, {
+                method: 'POST',
+                credentials: 'include'
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                if (!data.r) {
+                    $(x).hide().next().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
+                } else {
+                    alert('error！')
+                }
+            });
+        }
+        function voteDown(x, id) {
+            var link = '/answers/'+id+'/votedown/';
+            fetch(link, {
+                method: 'POST',
+                credentials: 'include'
+            }).then(function (response) {
+                return response.json();
+            }).then(function (data) {
+                if (!data.r) {
+                    $(x).hide().prev().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
+                } else {
+                    alert('error！')
+                }
+            });
+        }
+
+        function answersMore(x, page) {
+        var link = '{% url 'asks:detail' pk=ask.id %}' + '?page=' + page;
+        $(x).html('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');
+        fetch(link, {
+            method: 'GET',
+            credentials: 'include'
+        }).then(function (response) {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error('404!')
+            }
+        }).then(function (data) {
+            $('#answers-list').append(data);
+            $(x).hide();
+        }).catch(function (err) {
+            console.log(err)
+        });
+    }
+
+        $(document).ready(function () {
+            $('#answer-btn').click(function () {
+                $('#answer-card').show();
+            });
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container-fulid">
+        <div class="row">
+            <div class="col-xs-2"></div>
+            <div class="col-xs-8">
+                <div class="card" style="padding: 30px">
+                    <div style="padding: 0 100px">
+                    <form action="{% url 'users:setting' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="user-old_password">旧密码</label>
+                            <input type="password" class="form-control" id="user-old_password" name="old_password">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-new_password1">新密码</label>
+                            <input type="password" class="form-control" id="user-new_password1" name="new_password1">
+                        </div>
+                        <div class="form-group">
+                            <label for="user-new_password2">确认新密码</label>
+                            <input type="password" class="form-control" id="user-new_password2" name="new_password2">
+                        </div>
+                        <button class="Button Button-blue" style="float: right">修改</button>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

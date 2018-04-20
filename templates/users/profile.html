@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container-fulid">
+        <div class="row">
+            <div class="col-xs-2"></div>
+            <div class="col-xs-8">
+                <div class="card" style="padding: 30px">
+                    <div class="col-xs-3" style="max-width: 200px;margin-top: 50px">
+                        <img src="{{ user.get_image_url }}" class="img-rounded img-header">
+                    </div>
+                    <div class="col-xs-9" style="margin-top: 30px">
+                        <form action="{% url 'users:profile' %}" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="user-nickname">昵称</label>
+                                    <input type="text" class="form-control" id="user-nickname" name="nickname"
+                                           placeholder="昵称" value="{{ user.nickname }}">
+
+                            </div>
+                            <div class="form-group">
+                                <label for="user-sex">性别</label>
+                                <select class="form-control" name="sex" id="user-sex">
+                                    <option value="M" {% if user.sex == 'M' %}selected{% endif %}>男</option>
+                                    <option value="F" {% if user.sex == 'F' %}selected{% endif %}>女</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-intro">简介</label>
+                                    <input type="text" class="form-control" id="user-intro" name="intro"
+                                           placeholder="一句话介绍" value="{{ user.intro }}">
+
+                            </div>
+                            <div class="form-group">
+                                <label for="user-image">头像</label>
+                                    <input type="url" class="form-control" id="user-image" name="image_url"
+                                           placeholder="请输入头像地址" value="{{ user.image_url }}">
+
+                            </div>
+                            <button class="Button Button-blue" style="float: right">保存</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

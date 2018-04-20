@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}注册{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <form action="/register/" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group {% if field.errors %}has-error{% endif %}">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="help-block">{{ field.errors }}</div>
+                        {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
