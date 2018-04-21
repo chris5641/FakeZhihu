@@ -14,7 +14,7 @@ from users.models import User
 
 
 class IndexView(generic.DetailView):
-    template_name = 'users/index.html'
+    template_name = 'index.html'
 
     def get_object(self, queryset=None):
         answers_list = Answer.objects.order_by('-create_time')
@@ -27,6 +27,7 @@ class IndexView(generic.DetailView):
         vote_list = []
         context['asks'] = asks
         context['answers'] = self.object.page(1)
+        context['explore'] = True
         if self.request.user.is_authenticated:
             for answer in self.object.page(1):
                 if self.request.user.is_voted(answer):

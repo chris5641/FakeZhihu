@@ -8,7 +8,7 @@
                     <div class="col-xs-8">
                         <div class="card" style="padding: 10px">
                             {% for topic in topics %}
-                                 <a class="ask-topic" href="#">{{ topic.name }}</a>
+                                 <a class="ask-topic" href="{% url 'topics:detail' topic.id %}">{{ topic.name }}</a>
                             {% endfor %}
                         </div>
                     </div>

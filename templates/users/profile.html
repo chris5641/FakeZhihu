@@ -26,16 +26,19 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label for="user-work">行业</label>
+                                    <input type="text" class="form-control" id="user-work" name="work"
+                                           placeholder="工作行业" value="{{ user.work }}">
+                            </div>
+                            <div class="form-group">
                                 <label for="user-intro">简介</label>
                                     <input type="text" class="form-control" id="user-intro" name="intro"
                                            placeholder="一句话介绍" value="{{ user.intro }}">
-
                             </div>
                             <div class="form-group">
                                 <label for="user-image">头像</label>
                                     <input type="url" class="form-control" id="user-image" name="image_url"
                                            placeholder="请输入头像地址" value="{{ user.image_url }}">
-
                             </div>
                             <button class="Button Button-blue" style="float: right">保存</button>
                         </form>

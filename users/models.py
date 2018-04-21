@@ -10,6 +10,7 @@ class User(AbstractUser):
     nickname = models.CharField(max_length=32, verbose_name='昵称')
     sex = models.CharField(max_length=2, choices=(('M', '男'), ('F', '女')), default='M', verbose_name='性别')
     intro = models.CharField(max_length=64, blank=True, verbose_name='简介')
+    work = models.CharField(max_length=64, blank=True, verbose_name='工作行业')
     image_url = models.URLField(blank=True, verbose_name='头像')
 
     def __str__(self):

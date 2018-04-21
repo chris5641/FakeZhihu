@@ -14,7 +14,7 @@
                                 style="font-weight: 400; font-size: 18px">&nbsp;&nbsp;&nbsp;{{ people.intro }}</span>
                         </h1>
                         <div style="margin: 20px 0">
-                            <p><i class="icon icon-leaf"></i>&nbsp;&nbsp;计算机软件</p>
+                            <p><i class="icon icon-leaf"></i>&nbsp;&nbsp;{{ people.work }}</p>
                             <p>
                                 {% if people.sex == 'M' %}
                                     <i class="icon icon-mars"></i>
@@ -55,7 +55,7 @@
                             </div>
                             <div class="user-header">他的回答</div>
                             {% for answer in answers %}
-                                <div class="answer-block">
+                                <div style="border-top: solid 1px #f6f6f6">
                                     <div class="answer-ask-header"><a href="{% url 'asks:detail' answer.ask.id %}" style="color: black">{{ answer.ask.title }}</a></div>
                                     <div class="answer-card-header">
                                         <img src="{{ answer.author.get_image_url }}" class="img-rounded" width="38px"
@@ -278,14 +278,6 @@
                                 </a>
                             </div>
                         </div>
-                        <footer style="line-height: 26px">
-                            <a>刘看山</a><span> · </span><a>知乎指南</a><span> · </span><a>知乎协议</a><span> · </span><a>隐私政策</a><br>
-                            <a>应用</a><span> · </span><a>工作</a><span> · </span><a>申请开通知乎机构号</a><br>
-                            <a>侵权举报</a><span> · </span><a>网上有害信息举报专区</a><br>
-                            <a>违法和不良信息举报: 010-82716601</a><br>
-                            <a>儿童色情信息举报专区</a><br>
-                            <a>联系我们 © 2018 知乎</a><br>
-                        </footer>
                     </div>
                 </div>
 
@@ -383,7 +375,6 @@
     }
     function answersMore(x, page) {
         var link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
-        $(x).html('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');
         fetch(link, {
             method: 'GET',
             credentials: 'include'

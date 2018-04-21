@@ -14,7 +14,7 @@ from asks.models import Ask
 
 
 class IndexView(LoginRequiredMixin, generic.DetailView):
-    template_name = 'users/index.html'
+    template_name = 'index.html'
 
     def get_object(self, queryset=None):
         union_list = []
@@ -50,7 +50,7 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
         except PageNotAnInteger or EmptyPage:
             return HttpResponseNotFound
         if self.request.user.is_authenticated:
-            for answer in self.object.page(page):
+            for answer in answers:
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
         context = dict(answers=answers, vote_list=vote_list)
@@ -161,7 +161,7 @@ class FollowerView(DetailView):
 class ProfileView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'users/profile.html'
     context_object_name = 'user'
-    fields = ['nickname', 'sex', 'intro', 'image_url']
+    fields = ['nickname', 'sex', 'intro', 'work', 'image_url']
 
     def get_object(self, queryset=None):
         return self.request.user
