@@ -72,10 +72,7 @@ class User(AbstractUser):
         return True
 
     def is_voted(self, answer):
-        if VoteMap.objects.filter(user=self, answer=answer).first():
-            return True
-        else:
-            return False
+        return VoteMap.objects.filter(user=self, answer=answer).exists()
 
     @staticmethod
     def _get_answer(votemap):
@@ -94,6 +91,9 @@ class User(AbstractUser):
 class FollowShip(models.Model):
     follow = models.ForeignKey(User, related_name='fun_list', on_delete=models.CASCADE, verbose_name='被关注者')
     fun = models.ForeignKey(User, related_name='follow_list', on_delete=models.CASCADE, verbose_name='粉丝')
+
+    class Meta:
+        unique_together = ('follow', 'fun')
 
     def __str__(self):
         return '{fun} 关注: {follow}'.format(fun=self.fun.username, follow=self.follow.username)

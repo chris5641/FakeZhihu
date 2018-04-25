@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from fakeZhihu.settings import logger
-from .models import User, FollowShip
+from .models import User
 from .forms import LoginForm, RegisterForm
 from asks.models import Ask
 

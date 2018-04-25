@@ -293,86 +293,8 @@
 
 {% block script %}
 <script>
-    function enter(x) {
-        $(x).text('取消关注');
-    }
-    function leave(x) {
-        $(x).text('  已关注');
-    }
-    function readmore(x, id) {
-        var link = '/answers/' + id + '/content/';
-        fetch(link, {
-            method: 'GET',
-            credentials: 'include'
-        }).then(function (response) {
-            return response.json()
-        }).then(function (data) {
-            if (!data.r) {
-                $(x).siblings('span').hide();
-                $(x).parent().html(data.content).append('<div class="answer-time">编辑于'+ data.create_time + '</p>');
-            } else {
-                alert('error!')
-            }
-        });
-    }
-    function reply(x, answer_id, comment_id) {
-        var replyEeditor = $('#replyEditor-'+answer_id);
-        $('.reply-btn').show();
-        $(x).hide().before(replyEeditor);
-        replyEeditor.show().find("input[name='reply_id']").val(comment_id);
-    }
-    function cancelReply(x) {
-        $(x).parent().hide();
-        $('.reply-btn').show();
-    }
-    function showComments(x, id) {
-        $('#commentList-'+id).show();
-        $(x).hide().next().show();
-    }
-    function hideComments(x, id) {
-        $('#commentList-'+id).hide();
-        $(x).hide().prev().show();
-    }
-    function voteUp(x, id) {
-        {% if user.is_authenticated %}
-        var link = '/answers/'+id+'/voteup/';
-        fetch(link, {
-            method: 'POST',
-            credentials: 'include'
-        }).then(function (response) {
-            return response.json();
-        }).then(function (data) {
-            if (!data.r) {
-                $(x).hide().next().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
-            } else {
-                alert('error！')
-            }
-        });
-        {% else %}
-            window.location.href = '/login/';
-        {% endif %}
-    }
-    function voteDown(x, id) {
-        {% if user.is_authenticated %}
-        var link = '/answers/'+id+'/votedown/';
-        fetch(link, {
-            method: 'POST',
-            credentials: 'include'
-        }).then(function (response) {
-            console.log(response);
-            return response.json();
-        }).then(function (data) {
-            console.log(data);
-            if (!data.r) {
-                $(x).hide().prev().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
-            } else {
-                alert('error！')
-            }
-        });
-        {% else %}
-            window.location.href = '/login/';
-        {% endif %}
-    }
+
+
     function answersMore(x, page) {
         var link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
         fetch(link, {

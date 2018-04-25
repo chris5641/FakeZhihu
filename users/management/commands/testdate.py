@@ -19,7 +19,6 @@ class Command(BaseCommand):
         tzone = timezone.get_current_timezone()
         # 生成用户数据
         print('正在生成用户数据...')
-        user_list = []
         for i in range(50):
             User.objects.create_user(username=('test'+str(i)),
                                      nickname=fake.name(),
@@ -38,7 +37,7 @@ class Command(BaseCommand):
                 u = User.objects.get(id=i)
             except User.DoesNotExist:
                 continue
-            follow_limit = random.randint(1, 10)
+            follow_limit = random.randint(5, 10)
             for _ in range(follow_limit):
                 u.follow(random.randint(1, user_count))
         print('用户关系生成完成！')
@@ -122,13 +121,14 @@ class Command(BaseCommand):
                 u = User.objects.get(id=i)
             except User.DoesNotExist:
                 continue
-            for j in range(answer_limit):
+            answer_list = random.sample(range(answer_count), answer_limit)
+            for answer_id in answer_list:
                 try:
-                    answer = Answer.objects.get(id=random.randint(1, answer_count))
+                    answer = Answer.objects.get(id=answer_id)
                 except Answer.DoesNotExist:
                     continue
                 # u.voteup(answer)
-                if not u.is_voted(answer):
+                if u.is_voted(answer) is False:
                     vote_list.append(VoteMap(user=u, answer=answer))
                     answer.voteup()
             VoteMap.objects.bulk_create(vote_list)

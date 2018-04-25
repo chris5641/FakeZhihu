@@ -144,72 +144,8 @@
 {% endblock %}
 
 {% block script %}
-    <script>
-        function readmore(x, id) {
-            var link = '/answers/' + id + '/content/';
-            fetch(link, {
-                method: 'GET',
-                credentials: 'include'
-            }).then(function (response) {
-                return response.json()
-            }).then(function (data) {
-                if (!data.r) {
-                    $(x).siblings('span').hide();
-                    $(x).parent().html(data.content).append('<div class="answer-time">编辑于'+ data.create_time + '</p>');
-                } else {
-                    alert('error!')
-                }
-            });
-        }
-        function reply(x, answer_id, comment_id) {
-            var replyEeditor = $('#replyEditor-'+answer_id);
-            $('.reply-btn').show();
-            $(x).hide().before(replyEeditor);
-            replyEeditor.show().find("input[name='reply_id']").val(comment_id);
-        }
-        function cancelReply(x) {
-            $(x).parent().hide();
-            $('.reply-btn').show();
-        }
-        function showComments(x, id) {
-            $('#commentList-'+id).show();
-            $(x).hide().next().show();
-        }
-        function hideComments(x, id) {
-            $('#commentList-'+id).hide();
-            $(x).hide().prev().show();
-        }
-        function voteUp(x, id) {
-            var link = '/answers/'+id+'/voteup/';
-            fetch(link, {
-                method: 'POST',
-                credentials: 'include'
-            }).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                if (!data.r) {
-                    $(x).hide().next().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
-                } else {
-                    alert('error！')
-                }
-            });
-        }
-        function voteDown(x, id) {
-            var link = '/answers/'+id+'/votedown/';
-            fetch(link, {
-                method: 'POST',
-                credentials: 'include'
-            }).then(function (response) {
-                return response.json();
-            }).then(function (data) {
-                if (!data.r) {
-                    $(x).hide().prev().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
-                } else {
-                    alert('error！')
-                }
-            });
-        }
 
+    <script>
         function answersMore(x, page) {
         var link = '{% if explore %}{% url 'explore' %}{% elif topic %}{% url 'topics:detail' topic.id %}{% else %}{% url 'index' %}{% endif %}' + '?page=' + page;
         $(x).html('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');

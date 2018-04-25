@@ -1,16 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
 from django.views import generic
-from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
 from fakeZhihu.settings import logger
 from asks.models import Ask
-from .models import Answer
-from .forms import AnswerForm
-from users.models import User
+from .models import Answer, VoteMap
 
 
 class IndexView(generic.DetailView):
@@ -100,7 +97,6 @@ class ShowAnswerView(generic.DetailView):
 
 
 @login_required
-@csrf_exempt
 def vote_up(request, pk):
     data = dict(
         r=1,
@@ -113,11 +109,10 @@ def vote_up(request, pk):
             logger.info(vote)
             data['r'] = 0
             data['count'] = answer.votes
-    return JsonResponse(data)
+    return JsonResponse(data, status=201)
 
 
 @login_required
-@csrf_exempt
 def vote_down(request, pk):
     data = dict(
         r=1,
@@ -133,6 +128,6 @@ def vote_down(request, pk):
                 logger.info('{} 取消了赞： {}'.format(user, answer.id))
             else:
                 logger.error('{} 取消赞失败: {}'.format(user, answer.id))
-    return JsonResponse(data)
+    return JsonResponse(data, status=201)
 
 
