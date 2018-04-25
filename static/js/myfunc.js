@@ -1,9 +1,9 @@
 function getCookie(name) {
-    var cookieValue = null;
+    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -15,63 +15,58 @@ function getCookie(name) {
 }
 
 function voteUp(x, id) {
-    var headers = new Headers();
+    let headers = new Headers();
     headers.append('X-CSRFToken', getCookie('csrftoken'));
-    var link = '/answers/' + id + '/voteup/';
+    let link = '/answers/' + id + '/voteup/';
     fetch(link, {
         headers: headers,
         method: 'POST',
         credentials: 'include'
-    }).then(function (response) {
+    }).then( response => {
         if (response.ok) {
             return response.json();
         } else {
             throw new Error(response)
         }
-    }).then(function (data) {
+    }).then(data => {
         if (!data.r) {
             $(x).hide().next().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
         } else {
             alert('error！')
         }
-    }).catch(function (e) {
-        alert(e);
-    });
+    }).catch(e => alert(e));
 }
 
 function voteDown(x, id) {
-    var headers = new Headers();
+    let headers = new Headers();
     headers.append('X-CSRFToken', getCookie('csrftoken'));
-    var link = '/answers/' + id + '/votedown/';
+    let link = '/answers/' + id + '/votedown/';
     fetch(link, {
         headers: headers,
         method: 'POST',
         credentials: 'include'
-    }).then(function (response) {
+    }).then(response => {
         if (response.ok) {
             return response.json();
         } else {
             throw new Error(response)
         }
-    }).then(function (data) {
+    }).then(data => {
         if (!data.r) {
             $(x).hide().prev().show().html('<i class="icon icon-caret-up"></i> ' + data.count);
         } else {
             alert('error！')
         }
-    }).catch(function (e) {
-        alert(e);
-    });
+    }).catch(e => alert(e));
 }
 
 function readmore(x, id) {
-    var link = '/answers/' + id + '/content/';
+    let link = '/answers/' + id + '/content/';
     fetch(link, {
         method: 'GET',
         credentials: 'include'
-    }).then(function (response) {
-        return response.json()
-    }).then(function (data) {
+    }).then(response => response.json()
+    ).then(data => {
         if (!data.r) {
             $(x).siblings('span').hide();
             $(x).parent().html(data.content).append('<div class="answer-time">编辑于' + data.create_time + '</p>');
@@ -82,7 +77,7 @@ function readmore(x, id) {
 }
 
 function reply(x, answer_id, comment_id) {
-    var replyEeditor = $('#replyEditor-' + answer_id);
+    let replyEeditor = $('#replyEditor-' + answer_id);
     $('.reply-btn').show();
     $(x).hide().before(replyEeditor);
     replyEeditor.show().find("input[name='reply_id']").val(comment_id);
@@ -94,13 +89,32 @@ function cancelReply(x) {
 }
 
 function showComments(x, id) {
+
+
     $('#commentList-' + id).show();
     $(x).hide().next().show();
+    $('#comments-' + id).append('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');
+    let link = '/comments/answer/' + id;
+    fetch(link, {
+        method: 'GET',
+        credentials: 'include'
+    }).then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('404!')
+        }
+    }).then(data => {
+        $('#comments-' + id).empty();
+        $('#comments-' + id).append(data);
+    }).catch(e => console.log(e));
+
 }
 
 function hideComments(x, id) {
     $('#commentList-' + id).hide();
     $(x).hide().prev().show();
+    $('#comments-' + id).empty();
 }
 
 function enter(x) {

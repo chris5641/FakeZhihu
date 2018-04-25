@@ -4,10 +4,29 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework import mixins
+from rest_framework import filters
+from rest_framework.pagination import PageNumberPagination
 
 from fakeZhihu.settings import logger
 from .models import Comment
+from .serializers import CommentSerializer
 from answers.models import Answer
+
+
+class CommentPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+
+
+class CommentViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
+    pagination_class = CommentPagination
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all().order_by('-create_time')
+    filter_backends = (DjangoFilterBackend, )
+    filter_fields = ('answer', )
 
 
 class CreatCommentView(LoginRequiredMixin, generic.CreateView):
@@ -37,6 +56,17 @@ class CreatCommentView(LoginRequiredMixin, generic.CreateView):
     def form_invalid(self, form):
         logger.error('comment error')
         return redirect(self.request.META.get('HTTP_REFERER', '/'))
+
+
+class CommentsListView(generic.ListView):
+    template_name = 'commentslist.html'
+    model = Comment
+    context_object_name = 'comments'
+
+    def get_queryset(self):
+        answer_id = self.kwargs['pk']
+        queryset = Comment.objects.all().filter(answer_id=answer_id).order_by('-create_time')
+        return queryset
 
 
 class DeleteCommentView(LoginRequiredMixin, generic.DeleteView):

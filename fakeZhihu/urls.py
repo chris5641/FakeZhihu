@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from rest_framework.documentation import include_docs_urls
 
 from users import views as users_views
 from asks import views as asks_views
 from answers import views as answers_views
 from topics import views as topics_view
+
+router = DefaultRouter()
 
 
 urlpatterns = [
@@ -33,5 +37,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('asks/', include('asks.urls')),
     path('answers/', include('answers.urls')),
-    path('comments/', include('comments.urls'))
+    path('comments/', include('comments.urls')),
+    path('api/', include(router.urls)),
+    path('docs/', include_docs_urls('知乎'))
 ]

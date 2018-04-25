@@ -296,7 +296,7 @@
 
 
     function answersMore(x, page) {
-        var link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
+        let link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
         fetch(link, {
             method: 'GET',
             credentials: 'include'

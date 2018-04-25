@@ -1,0 +1,26 @@
+{% for comment in comments.all %}
+    <div class="comment-item">
+        <div class="commentItem-meta">
+        <span>
+            <img src="{{ comment.author.get_image_url }}" class="img-rounded" width="24px" height="24px">
+            <a style="color: black" href="{% url 'users:detail' comment.author.id %}">{{ comment.author.nickname }}</a>
+            {% if comment.reply_to %}
+                <span style="color: #8590a6">&nbsp;回复&nbsp;</span>
+                <a style="color: black" href="{% url 'users:detail' comment.reply_to.author.id %}">{{ comment.reply_to.author.nickname }}</a>
+            {% endif %}
+            <span class="datetime" style="float: right">{{ comment.create_time|timesince }}前</span>
+        </span>
+        </div>
+        <div class="commentItem-content">{{ comment.content }}</div>
+
+        <button class="footer-tab reply-btn" onclick="reply(this, {{ comment.answer.id }}, {{ comment.id }})" style="margin: 0">
+            <i class="icon icon-share-alt"></i> 回复
+        </button>
+        {% if user.is_staff or user == comment.author or user == answer.author %}
+            <form style="display: inline" action="{% url 'comments:delete' pk=comment.id %}" method="post">{% csrf_token %}
+                <button class="footer-tab reply-btn" type="submit" style="margin: 0"><i class="icon icon-trash"></i> 删除</button>
+            </form>
+        {% endif %}
+    </div>
+
+{% endfor %}
