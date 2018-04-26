@@ -94,7 +94,7 @@ function showComments(x, id) {
     $('#commentList-' + id).show();
     $(x).hide().next().show();
     $('#comments-' + id).append('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');
-    let link = '/comments/answer/' + id;
+    let link = `/comments/answer/${id}/`;
     fetch(link, {
         method: 'GET',
         credentials: 'include'

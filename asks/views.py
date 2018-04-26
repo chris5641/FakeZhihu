@@ -74,3 +74,20 @@ class DetailView(generic.FormView, generic.DetailView):
         return render(request, 'answerslist.html', context)
 
 
+class AnswerDetailView(generic.DetailView):
+    model = Ask
+    form_class = AnswerForm
+    template_name = 'asks/detail.html'
+    context_object_name = 'ask'
+
+    def get_context_data(self, **kwargs):
+        context = super(AnswerDetailView, self).get_context_data(**kwargs)
+        asks = Ask.objects.all().order_by('-create_time')[:5]
+        topics_list = self.object.topics.all()
+        answer = self.object.answers.filter(id=self.kwargs['answer_id']).first()
+        context['answer'] = answer
+        context['topics_list'] = topics_list
+        context['asks'] = asks
+        context['answer_view'] = True
+        return context
+

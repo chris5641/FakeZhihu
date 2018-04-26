@@ -18,74 +18,12 @@
                         {% endif %}
                         <div class="card" id="answers-list">
                             {% for answer in answers %}
-                                <div class="answer-block">
-                                    <div class="answer-ask-header"><a href="{% url 'asks:detail' answer.ask.id %}" style="color: black">{{ answer.ask.title }}</a></div>
-                                    <div class="answer-card-header">
-                                        <img src="{{ answer.author.get_image_url }}" class="img-rounded" width="38px" height="38px">
-                                        <div class="user-info">
-                                            <a href="{% url 'users:detail' answer.author.id %}" class="user-name">{{ answer.author.nickname }}</a>
-                                            <div class="user-intro">{{ answer.author.intro }}</div>
-                                        </div>
-                                    </div>
-
-                                    {% if answer.content_text|length < 180 %}
-                                        <div class="answer-content">{{ answer.content|safe }}</div>
-                                    {% else %}
-                                        <div class="answer-content">
-                                            <span>{{ answer.content_text|slice:':150'|safe }} ...</span>
-                                            <button class="readmore" onclick="readmore(this, {{ answer.id }});return false">阅读全文 <i class="icon icon-angle-down"></i></button>
-                                        </div>
-
-                                    {% endif %}
-                                    <div class="answer-footer" style="padding: 0 10px 10px 10px">
-{#                                        {% if user.is_voted(answer) %}#}
-                                        {% if answer in vote_list %}
-                                            <button class="vote" onclick="voteUp(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
-                                            <button class="voted" onclick="voteDown(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
-                                        {% else %}
-                                            <button class="vote" onclick="voteUp(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
-                                            <button class="voted" onclick="voteDown(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
-                                        {% endif %}
-                                        <button class="vote" onclick="return false"><i class="icon icon-caret-down"></i></button>
-                                        <button class="footer-tab" onclick="showComments(this, {{ answer.id }})"><i class="icon icon-comment"></i> {{ answer.comments.count }}条评论</button>
-                                        <button class="footer-tab" onclick="hideComments(this, {{ answer.id }})" hidden><i class="icon icon-comment"></i> 收起评论</button>
-                                        <button class="footer-tab" onclick="return false"><i class="icon icon-share-alt"></i> 分享</button>
-                                        {% if user.is_staff or user == answer.author %}
-                                            <form style="display: inline" action="{% url 'answers:delete' pk=answer.id %}" method="post">{% csrf_token %}
-                                                <button class="footer-tab" type="submit"><i class="icon icon-trash"></i> 删除</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-
-                                    <div id="commentList-{{ answer.id }}" class="comments-container" hidden>
-                                        <div class="user-header">{{ answer.comments.count }}条评论</div>
-
-                                        <div id="replyEditor-{{ answer.id }}" class="comment-editor" style="padding: 0 0 5px;" hidden>
-                                            <form style="display: flex" action="{% url 'comments:post_comment' pk=answer.id %}" method="post">
-                                                {% csrf_token %}
-                                                <textarea class="form-control" placeholder="评论" rows="1" name="content" required></textarea>
-                                                <input name="reply_id" value="" type="hidden">
-                                                <button class="Button Button-blue" style="margin-left: 10px; width: 80px;">评论</button>
-                                            </form>
-                                            <button class="footer-tab" onclick="cancelReply(this)" style="margin: 10px 0 0 0">&nbsp;&nbsp;&nbsp;取消</button>
-                                        </div>
-                                        <div id="comments-{{ answer.id }}"></div>
-                                        <div class="comment-editor">
-                                            <form style="display: flex" action="{% url 'comments:post_comment' pk=answer.id %}" method="post">
-                                                {% csrf_token %}
-                                                <textarea class="form-control" placeholder="评论" rows="1" name="content" required></textarea>
-                                                <input name="reply_id" value="" type="hidden">
-                                                <button class="Button Button-blue" style="margin-left: 10px; width: 80px;">评论</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+                                {% include "answer_block.html" %}
                             {% endfor %}
                             {% if answers.has_next %}
                                 <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
                             {% endif %}
                         </div>
-
 
                     </div>
 
