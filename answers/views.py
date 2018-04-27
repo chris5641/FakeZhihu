@@ -4,6 +4,7 @@ from django.views import generic
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from fakeZhihu.settings import logger
 from asks.models import Ask
@@ -101,6 +102,57 @@ class ShowAnswerView(generic.DetailView):
         data['content'] = answer.content
         data['create_time'] = answer.create_time.date()
         return JsonResponse(data)
+
+
+class SearchView(generic.DetailView):
+    template_name = 'index.html'
+
+    def get_object(self, queryset=None):
+        key_word = self.request.GET.get('s', '')
+        answers_list = Answer.objects.filter(Q(content_text__icontains=key_word)
+                                             | Q(ask__title__icontains=key_word)).order_by('-votes')
+        paginator = Paginator(answers_list, 10)
+        return paginator
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchView, self).get_context_data(**kwargs)
+        asks = Ask.objects.all().order_by('-create_time')[:5]
+        vote_list = []
+        collection_list = []
+        context['asks'] = asks
+        context['answers'] = self.object.page(1)
+        context['explore'] = True
+        if self.request.user.is_authenticated:
+            for answer in self.object.page(1):
+                if self.request.user.is_voted(answer):
+                    vote_list.append(answer)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
+        return context
+
+    def get(self, request, *args, **kwargs):
+        super(SearchView, self).get(request, *args, **kwargs)
+        page = request.GET.get('page', None)
+        if page is None:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+        vote_list = []
+        collection_list = []
+        try:
+            answers = self.object.page(page)
+        except PageNotAnInteger or EmptyPage:
+            return HttpResponseNotFound
+        if self.request.user.is_authenticated:
+            for answer in self.object.page(page):
+                if self.request.user.is_voted(answer):
+                    vote_list.append(answer)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context = dict(answers=answers, vote_list=vote_list, collection_list=collection_list)
+        return render(request, 'answerslist.html', context)
 
 
 @login_required

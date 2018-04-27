@@ -33,6 +33,7 @@ urlpatterns = [
     path('logout/', users_views.logout, name='logout'),
     path('register/', users_views.register, name='register'),
     path('explore/', answers_views.IndexView.as_view(), name='explore'),
+    path('search/', answers_views.SearchView.as_view(), name='search'),
     path('topics/', include('topics.urls')),
     path('users/', include('users.urls')),
     path('asks/', include('asks.urls')),
