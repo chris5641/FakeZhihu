@@ -60,6 +60,52 @@ function voteDown(x, id) {
     }).catch(e => console.log(e));
 }
 
+function collect(x, id) {
+    let headers = new Headers();
+    headers.append('X-CSRFToken', getCookie('csrftoken'));
+    let link = '/answers/' + id + '/collect/';
+    fetch(link, {
+        headers: headers,
+        method: 'POST',
+        credentials: 'include'
+    }).then( response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(response)
+        }
+    }).then(data => {
+        if (!data.r) {
+            $(x).hide().next().show();
+        } else {
+            alert('error！')
+        }
+    }).catch(e => console.log(e));
+}
+
+function uncollect(x, id) {
+    let headers = new Headers();
+    headers.append('X-CSRFToken', getCookie('csrftoken'));
+    let link = '/answers/' + id + '/uncollect/';
+    fetch(link, {
+        headers: headers,
+        method: 'POST',
+        credentials: 'include'
+    }).then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(response)
+        }
+    }).then(data => {
+        if (!data.r) {
+            $(x).hide().prev().show();
+        } else {
+            alert('error！')
+        }
+    }).catch(e => console.log(e));
+}
+
 function readmore(x, id) {
     let link = '/answers/' + id + '/content/';
     fetch(link, {

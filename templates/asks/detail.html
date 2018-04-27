@@ -25,7 +25,7 @@
                         <div class="row">
                             <div class="col-xs-9">
                                 {% for topic in topics_list %}
-                                    <span><a class="ask-topic" href="#">{{ topic.name }}</a></span>
+                                    <span><a class="ask-topic" href="{% url 'topics:detail' topic.id %}">{{ topic.name }}</a></span>
                                 {% endfor %}
                                 <h1>{{ ask.title }}</h1>
                                 <div class="ask-content">{{ ask.content }}</div>

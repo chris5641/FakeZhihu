@@ -144,6 +144,29 @@ class Command(BaseCommand):
                 vote_list = []
             print('点赞完成！')
 
+        if not options['o'] or (options['o'] and 'collection' in options['o']):
+            # 生成点赞数据
+            print('正在收藏...')
+            user_count = User.objects.count()
+            answer_count = Answer.objects.count()
+            collection_list = []
+            for i in range(user_count):
+                try:
+                    u = User.objects.get(id=i)
+                except User.DoesNotExist:
+                    continue
+                answer_list = random.sample(range(answer_count), random.randint(5, 30))
+                for answer_id in answer_list:
+                    try:
+                        answer = Answer.objects.get(id=answer_id)
+                    except Answer.DoesNotExist:
+                        continue
+                    if u.is_collected(answer) is False:
+                        collection_list.append(answer)
+                u.collections.add(*collection_list)
+                collection_list = []
+            print('收藏完成！')
+
 
 
 

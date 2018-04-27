@@ -34,7 +34,17 @@
         <button class="footer-tab" onclick="showComments(this, {{ answer.id }})"><i class="icon icon-comment"></i> {{ answer.comments.count }}条评论</button>
         <button class="footer-tab" onclick="hideComments(this, {{ answer.id }})" hidden><i class="icon icon-comment"></i> 收起评论</button>
         <button class="footer-tab" onclick="return false"><i class="icon icon-share-alt"></i> 分享</button>
-        <button class="footer-tab" onclick="return false"><i class="icon icon-star"></i> 收藏</button>
+        {% if answer in collection_list %}
+            <button class="footer-tab" onclick="collect(this, {{ answer.id }})" hidden><i class="icon icon-star"></i> 收藏</button>
+            <button class="footer-tab" onclick="uncollect(this, {{ answer.id }})"><i class="icon icon-star"></i> 取消收藏</button>
+        {% else %}
+            {% if user.is_authenticated %}
+                <button class="footer-tab" onclick="collect(this, {{ answer.id }})"><i class="icon icon-star"></i> 收藏</button>
+            {% else %}
+                <button class="footer-tab" data-toggle="modal" data-target="#loginModal"><i class="icon icon-star"></i> 收藏</button>
+            {% endif %}
+            <button class="footer-tab" onclick="uncollect(this, {{ answer.id }})" hidden><i class="icon icon-star"></i> 取消收藏</button>
+        {% endif %}
         {% if user.is_staff or user == answer.author %}
             <form style="display: inline" action="{% url 'answers:delete' pk=answer.id %}" method="post">{% csrf_token %}
                 <button class="footer-tab" type="submit"><i class="icon icon-trash"></i> 删除</button>

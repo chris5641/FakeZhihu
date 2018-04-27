@@ -22,6 +22,7 @@ class IndexView(generic.DetailView):
         context = super(IndexView, self).get_context_data(**kwargs)
         asks = Ask.objects.all().order_by('-create_time')[:5]
         vote_list = []
+        collection_list = []
         context['asks'] = asks
         context['answers'] = self.object.page(1)
         context['explore'] = True
@@ -29,7 +30,10 @@ class IndexView(generic.DetailView):
             for answer in self.object.page(1):
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-            context['vote_list'] = vote_list
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
         return context
 
     def get(self, request, *args, **kwargs):
@@ -40,6 +44,7 @@ class IndexView(generic.DetailView):
             return self.render_to_response(context)
 
         vote_list = []
+        collection_list = []
         try:
             answers = self.object.page(page)
         except PageNotAnInteger or EmptyPage:
@@ -48,7 +53,9 @@ class IndexView(generic.DetailView):
             for answer in self.object.page(page):
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-        context = dict(answers=answers, vote_list=vote_list)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context = dict(answers=answers, vote_list=vote_list, collection_list=collection_list)
         return render(request, 'answerslist.html', context)
 
 
@@ -134,3 +141,37 @@ def vote_down(request, pk):
     return JsonResponse(data, status=201)
 
 
+@login_required
+def collect(request, pk):
+    data = dict(
+        r=1,
+    )
+    if request.method == 'POST':
+        user = request.user
+        answer = Answer.objects.filter(id=pk).first()
+        if answer is not None:
+            ret = user.collect(answer)
+            if ret is True:
+                data['r'] = 0
+                logger.info('{} 收藏了： {}'.format(user, answer.id))
+            else:
+                logger.error('{} 收藏失败: {}'.format(user, answer.id))
+    return JsonResponse(data, status=201)
+
+
+@login_required
+def uncollect(request, pk):
+    data = dict(
+        r=1,
+    )
+    if request.method == 'POST':
+        user = request.user
+        answer = Answer.objects.filter(id=pk).first()
+        if answer is not None:
+            ret = user.uncollect(answer)
+            if ret is True:
+                data['r'] = 0
+                logger.info('{} 取消了收藏： {}'.format(user, answer.id))
+            else:
+                logger.error('{} 取消收藏失败: {}'.format(user, answer.id))
+    return JsonResponse(data, status=201)

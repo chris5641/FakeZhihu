@@ -14,6 +14,7 @@ class User(AbstractUser):
     image_url = models.URLField(blank=True, verbose_name='头像')
     followings = models.ManyToManyField('self', related_name='funs', symmetrical=False, verbose_name='关注')
     vote_answers = models.ManyToManyField(Answer, related_name='vote_user', verbose_name='点赞答案')
+    collections = models.ManyToManyField(Answer, related_name='collection_user', verbose_name='收藏')
 
     def __str__(self):
         return self.username
@@ -71,6 +72,21 @@ class User(AbstractUser):
 
     def is_voted(self, answer):
         return self.vote_answers.filter(id=answer.id).exists()
+
+    def collect(self, answer):
+        if self.is_collected(answer):
+            return False
+        self.collections.add(answer)
+        return True
+
+    def uncollect(self, answer):
+        if not self.is_collected(answer):
+            return False
+        self.collections.add(answer)
+        return True
+
+    def is_collected(self, answer):
+        return self.collections.filter(id=answer.id).exists()
 
     @staticmethod
     def _get_answer(votemap):

@@ -39,6 +39,7 @@ class DetailView(generic.FormView, generic.DetailView):
         context = super(DetailView, self).get_context_data(**kwargs)
         asks = Ask.objects.all().order_by('-create_time')[:5]
         vote_list = []
+        collection_list = []
         answers_list = self.object.answers.order_by('-votes', '-create_time')
         paginator = Paginator(answers_list, 5)
         topics_list = self.object.topics.all()
@@ -46,7 +47,10 @@ class DetailView(generic.FormView, generic.DetailView):
             for answer in answers_list:
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-            context['vote_list'] = vote_list
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
         context['asks'] = asks
         context['answers'] = paginator.page(1)
         context['topics_list'] = topics_list
@@ -55,6 +59,7 @@ class DetailView(generic.FormView, generic.DetailView):
     def get(self, request, *args, **kwargs):
         super(DetailView, self).get(request, *args, **kwargs)
         vote_list = []
+        collection_list = []
         page = request.GET.get('page', None)
         if page is None:
             context = self.get_context_data(**kwargs)
@@ -70,7 +75,9 @@ class DetailView(generic.FormView, generic.DetailView):
             for answer in answers_list:
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-        context = dict(answers=answers, vote_list=vote_list, is_ask_index=True)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context = dict(answers=answers, vote_list=vote_list, collection_list=collection_list, is_ask_index=True)
         return render(request, 'answerslist.html', context)
 
 
@@ -85,6 +92,15 @@ class AnswerDetailView(generic.FormView, generic.DetailView):
         asks = Ask.objects.all().order_by('-create_time')[:5]
         topics_list = self.object.topics.all()
         answer = self.object.answers.filter(id=self.kwargs['answer_id']).first()
+        vote_list = []
+        collection_list = []
+        if self.request.user.is_authenticated:
+            if self.request.user.is_voted(answer):
+                vote_list.append(answer)
+            if self.request.user.is_collected(answer):
+                collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
         context['answer'] = answer
         context['topics_list'] = topics_list
         context['asks'] = asks

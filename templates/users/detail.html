@@ -50,7 +50,7 @@
                             <div>
                                 <a href="{% url 'users:answers' people.id %}" class="tab-link tab-active">回答 <span class="tab-num">{{ people.answers.count }}</span></a>
                                 <a href="{% url 'users:asks' people.id %}" class="tab-link ">提问 <span class="tab-num">{{ people.asks.count }}</span></a>
-                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">0</span></a>
+                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">{{ people.collections.count }}</span></a>
                                 <a href="{% url 'users:following' people.id %}" class="tab-link">关注 </a>
                             </div>
                             <div class="user-header">他的回答</div>
@@ -67,7 +67,7 @@
                             <div>
                                 <a href="{% url 'users:answers' people.id %}" class="tab-link">回答 <span class="tab-num">{{ people.answers.count }}</span></a>
                                 <a href="{% url 'users:asks' people.id %}" class="tab-link tab-active">提问 <span class="tab-num">{{ people.asks.count }}</span></a>
-                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">0</span></a>
+                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">{{ people.collections.count }}</span></a>
                                 <a href="{% url 'users:following' people.id %}" class="tab-link">关注 </a>
                             </div>
                             <div class="user-header">他的提问</div>
@@ -80,22 +80,27 @@
                             {% endfor %}
                         </div>
                         {% elif CollectionView %}
-                        <div class="card">
+                        <div class="card" id="answers-list">
                             <div>
                                 <a href="{% url 'users:answers' people.id %}" class="tab-link">回答 <span class="tab-num">{{ people.answers.count }}</span></a>
                                 <a href="{% url 'users:asks' people.id %}" class="tab-link">提问 <span class="tab-num">{{ people.asks.count }}</span></a>
-                                <a href="{% url 'users:collections' people.id %}" class="tab-link tab-active">收藏 <span class="tab-num">0</span></a>
+                                <a href="{% url 'users:collections' people.id %}" class="tab-link tab-active">收藏 <span class="tab-num">{{ people.collections.count }}</span></a>
                                 <a href="{% url 'users:following' people.id %}" class="tab-link">关注 </a>
                             </div>
                             <div class="user-header">他的收藏</div>
-
+                            {% for answer in answers %}
+                               {% include "answer_block.html" %}
+                            {% endfor %}
+                            {% if answers.has_next %}
+                                <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
+                            {% endif %}
                         </div>
                         {% elif FollowingView %}
                         <div class="card">
                             <div>
                                 <a href="{% url 'users:answers' people.id %}" class="tab-link">回答 <span class="tab-num">{{ people.answers.count }}</span></a>
                                 <a href="{% url 'users:asks' people.id %}" class="tab-link">提问 <span class="tab-num">{{ people.asks.count }}</span></a>
-                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">0</span></a>
+                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">{{ people.collections.count }}</span></a>
                                 <a href="{% url 'users:following' people.id %}" class="tab-link tab-active">关注 </a>
                             </div>
                             <div>
@@ -133,7 +138,7 @@
                             <div>
                                 <a href="{% url 'users:answers' people.id %}" class="tab-link">回答 <span class="tab-num">{{ people.answers.count }}</span></a>
                                 <a href="{% url 'users:asks' people.id %}" class="tab-link">提问 <span class="tab-num">{{ people.asks.count }}</span></a>
-                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">0</span></a>
+                                <a href="{% url 'users:collections' people.id %}" class="tab-link">收藏 <span class="tab-num">{{ people.collections.count }}</span></a>
                                 <a href="{% url 'users:following' people.id %}" class="tab-link tab-active">关注 </a>
                             </div>
                             <div>
@@ -209,7 +214,11 @@
 
 
     function answersMore(x, page) {
-        let link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
+        {% if CollectionView %}
+            let link = '{% url 'users:collections' pk=people.id %}' + '?page=' + page;
+        {% else %}
+            let link = '{% url 'users:answers' pk=people.id %}' + '?page=' + page;
+        {% endif %}
         fetch(link, {
             method: 'GET',
             credentials: 'include'

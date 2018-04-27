@@ -28,13 +28,17 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
         context = super(IndexView, self).get_context_data(**kwargs)
         asks = Ask.objects.all().order_by('-create_time')[:5]
         vote_list = []
+        collection_list = []
         context['asks'] = asks
         context['answers'] = self.object.page(1)
         if self.request.user.is_authenticated:
             for answer in self.object.page(1):
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-            context['vote_list'] = vote_list
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
         return context
 
     def get(self, request, *args, **kwargs):
@@ -45,6 +49,7 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
             return self.render_to_response(context)
 
         vote_list = []
+        collection_list = []
         try:
             answers = self.object.page(page)
         except PageNotAnInteger or EmptyPage:
@@ -53,7 +58,9 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
             for answer in answers:
                 if self.request.user.is_voted(answer):
                     vote_list.append(answer)
-        context = dict(answers=answers, vote_list=vote_list)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context = dict(answers=answers, vote_list=vote_list, collection_list=collection_list)
         return render(request, 'answerslist.html', context)
 
     def handle_no_permission(self):
@@ -76,16 +83,21 @@ class AnswerView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(AnswerView, self).get_context_data(**kwargs)
+        user = self.request.user
         vote_list = []
+        collection_list = []
         answer_list = self.object.answers.order_by('-votes', '-create_time')
         paginator = Paginator(answer_list, 5)
         context['AnswerView'] = True
         context['answers'] = paginator.page(1)
         if self.request.user.is_authenticated:
             for answer in paginator.page(1):
-                if self.request.user.is_voted(answer):
+                if user.is_voted(answer):
                     vote_list.append(answer)
+                if user.is_collected(answer):
+                    collection_list.append(answer)
             context['vote_list'] = vote_list
+            context['collection_list'] = collection_list
         return context
 
     def get(self, request, *args, **kwargs):
@@ -122,8 +134,46 @@ class CollectionView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CollectionView, self).get_context_data(**kwargs)
+        user = self.request.user
+        vote_list = []
+        collection_list = []
+        answer_list = self.object.collections.order_by('-votes', '-create_time')
+        paginator = Paginator(answer_list, 5)
         context['CollectionView'] = True
+        context['answers'] = paginator.page(1)
+        if self.request.user.is_authenticated:
+            for answer in paginator.page(1):
+                if user.is_voted(answer):
+                    vote_list.append(answer)
+                if user.is_collected(answer):
+                    collection_list.append(answer)
+        context['vote_list'] = vote_list
+        context['collection_list'] = collection_list
         return context
+
+    def get(self, request, *args, **kwargs):
+        super(CollectionView, self).get(request, *args, **kwargs)
+        vote_list = []
+        collection_list = []
+        page = request.GET.get('page', None)
+        if page is None:
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context)
+
+        answer_list = self.object.collections.order_by('-votes', '-create_time')
+        paginator = Paginator(answer_list, 5)
+        try:
+            answers = paginator.page(page)
+        except PageNotAnInteger or EmptyPage:
+            return HttpResponseNotFound
+        if self.request.user.is_authenticated:
+            for answer in answers:
+                if self.request.user.is_voted(answer):
+                    vote_list.append(answer)
+                if self.request.user.is_collected(answer):
+                    collection_list.append(answer)
+        context = dict(answers=answers, vote_list=vote_list, collection_list=collection_list)
+        return render(request, 'answerslist.html', context)
 
 
 class FollowingView(DetailView):
