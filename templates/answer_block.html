@@ -23,13 +23,18 @@
             <button class="vote" onclick="voteUp(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
             <button class="voted" onclick="voteDown(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
         {% else %}
-            <button class="vote" onclick="voteUp(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+            {% if user.is_authenticated %}
+                <button class="vote" onclick="voteUp(this, {{ answer.id }})"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+            {% else %}
+                <button class="vote" data-toggle="modal" data-target="#loginModal"><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
+            {% endif %}
             <button class="voted" onclick="voteDown(this, {{ answer.id }})" hidden><i class="icon icon-caret-up"></i> {{ answer.votes }}</button>
         {% endif %}
         <button class="vote" onclick="return false"><i class="icon icon-caret-down"></i></button>
         <button class="footer-tab" onclick="showComments(this, {{ answer.id }})"><i class="icon icon-comment"></i> {{ answer.comments.count }}条评论</button>
         <button class="footer-tab" onclick="hideComments(this, {{ answer.id }})" hidden><i class="icon icon-comment"></i> 收起评论</button>
         <button class="footer-tab" onclick="return false"><i class="icon icon-share-alt"></i> 分享</button>
+        <button class="footer-tab" onclick="return false"><i class="icon icon-star"></i> 收藏</button>
         {% if user.is_staff or user == answer.author %}
             <form style="display: inline" action="{% url 'answers:delete' pk=answer.id %}" method="post">{% csrf_token %}
                 <button class="footer-tab" type="submit"><i class="icon icon-trash"></i> 删除</button>

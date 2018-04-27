@@ -34,7 +34,7 @@ function voteUp(x, id) {
         } else {
             alert('error！')
         }
-    }).catch(e => alert(e));
+    }).catch(e => console.log(e));
 }
 
 function voteDown(x, id) {
@@ -57,7 +57,7 @@ function voteDown(x, id) {
         } else {
             alert('error！')
         }
-    }).catch(e => alert(e));
+    }).catch(e => console.log(e));
 }
 
 function readmore(x, id) {

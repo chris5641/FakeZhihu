@@ -2,7 +2,7 @@ import hashlib
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from answers.models import Answer, VoteMap
+from answers.models import Answer
 
 
 class User(AbstractUser):
@@ -12,6 +12,8 @@ class User(AbstractUser):
     intro = models.CharField(max_length=64, blank=True, verbose_name='简介')
     work = models.CharField(max_length=64, blank=True, verbose_name='工作行业')
     image_url = models.URLField(blank=True, verbose_name='头像')
+    followings = models.ManyToManyField('self', related_name='funs', symmetrical=False, verbose_name='关注')
+    vote_answers = models.ManyToManyField(Answer, related_name='vote_user', verbose_name='点赞答案')
 
     def __str__(self):
         return self.username
@@ -37,9 +39,8 @@ class User(AbstractUser):
             follow_user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return False
-        if follow_user is not None and not self.is_following(follow_user) and self.id != follow_user.id:
-            follow_ship = FollowShip(follow=follow_user, fun=self)
-            follow_ship.save()
+        if self.id != follow_user.id and not self.is_following(follow_user):
+            self.followings.add(follow_user)
             return True
 
     def unfollow(self, user_id):
@@ -47,53 +48,31 @@ class User(AbstractUser):
             follow_user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return False
-        if follow_user is not None and self.is_following(follow_user):
-            follow_ship = self.follow_list.get(follow=follow_user)
-            follow_ship.delete()
+        if self.is_following(follow_user):
+            self.followings.remove(follow_user)
             return True
 
     def is_following(self, user):
-        return True if self.follow_list.filter(follow=user).first() else False
+        return self.followings.filter(id=user.id).exists()
 
     def voteup(self, answer):
         if self.is_voted(answer):
-            return '{} 已经点赞过了: {}'.format(self, answer.id)
-        vote = VoteMap(user=self, answer=answer)
-        vote.save()
+            return False
+        self.vote_answers.add(answer)
         answer.voteup()
-        return vote
+        return True
 
     def votedown(self, answer):
         if not self.is_voted(answer):
             return False
-        vote = VoteMap.objects.filter(user=self, answer=answer).first()
-        vote.delete()
+        self.vote_answers.remove(answer)
         answer.votedown()
         return True
 
     def is_voted(self, answer):
-        return VoteMap.objects.filter(user=self, answer=answer).exists()
+        return self.vote_answers.filter(id=answer.id).exists()
 
     @staticmethod
     def _get_answer(votemap):
         return votemap.answer
 
-    @property
-    def vote_list(self):
-        vote_map = VoteMap.objects.filter(user=self)
-        if vote_map is not None:
-            vote_list = list(map(self._get_answer, vote_map.all()))
-            return vote_list
-        else:
-            return []
-
-
-class FollowShip(models.Model):
-    follow = models.ForeignKey(User, related_name='fun_list', on_delete=models.CASCADE, verbose_name='被关注者')
-    fun = models.ForeignKey(User, related_name='follow_list', on_delete=models.CASCADE, verbose_name='粉丝')
-
-    class Meta:
-        unique_together = ('follow', 'fun')
-
-    def __str__(self):
-        return '{fun} 关注: {follow}'.format(fun=self.fun.username, follow=self.follow.username)

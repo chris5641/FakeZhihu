@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from fakeZhihu.settings import logger
 from asks.models import Ask
-from .models import Answer, VoteMap
+from .models import Answer
 
 
 class IndexView(generic.DetailView):
@@ -105,10 +105,13 @@ def vote_up(request, pk):
         user = request.user
         answer = Answer.objects.filter(id=pk).first()
         if answer is not None:
-            vote = user.voteup(answer)
-            logger.info(vote)
-            data['r'] = 0
-            data['count'] = answer.votes
+            ret = user.voteup(answer)
+            if ret is True:
+                data['r'] = 0
+                data['count'] = answer.votes
+                logger.info('{} 赞同了： {}'.format(user, answer.id))
+            else:
+                logger.error('{} 赞同失败: {}'.format(user, answer.id))
     return JsonResponse(data, status=201)
 
 
@@ -121,8 +124,8 @@ def vote_down(request, pk):
         user = request.user
         answer = Answer.objects.filter(id=pk).first()
         if answer is not None:
-            vote = user.votedown(answer)
-            if vote is True:
+            ret = user.votedown(answer)
+            if ret is True:
                 data['r'] = 0
                 data['count'] = answer.votes
                 logger.info('{} 取消了赞： {}'.format(user, answer.id))

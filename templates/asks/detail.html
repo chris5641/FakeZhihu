@@ -129,7 +129,7 @@
                                     <a href="{% url 'users:followers' answer.author.id %}">
                                     <div class="follow-board">
                                         <div class="NumberBoard-itemname">关注者</div>
-                                        <div class="NumberBoard-itemnum">{{ answer.author.fun_list.count }}</div>
+                                        <div class="NumberBoard-itemnum">{{ answer.author.funs.count }}</div>
                                     </div>
                                     </a>
                                 </div>
@@ -162,12 +162,12 @@
 {% endblock %}
 
 {% block script %}
-    <script src="https://cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+    <script src="//cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
     <script>
-        var E = window.wangEditor;
-        var editor = new E('#editor1', '#editor2');
-        var answerText = $('#{{ form.content_text.id_for_label }}');
-        var answerHtml = $('#{{ form.content.id_for_label }}');
+        let E = window.wangEditor;
+        let editor = new E('#editor1', '#editor2');
+        let answerText = $('#{{ form.content_text.id_for_label }}');
+        let answerHtml = $('#{{ form.content.id_for_label }}');
         editor.customConfig.zIndex = 0;
         editor.customConfig.onchange = function () {
             // 监控变化，同步更新到 textarea
@@ -190,7 +190,7 @@
         answerHtml.val(editor.txt.html());
 
         function answersMore(x, page) {
-        var link = '{% url 'asks:detail' pk=ask.id %}' + '?page=' + page;
+        let link = '{% url 'asks:detail' pk=ask.id %}' + '?page=' + page;
         $(x).html('<i class="icon icon-spin icon-spinner-snake"></i> 加载中...');
         fetch(link, {
             method: 'GET',

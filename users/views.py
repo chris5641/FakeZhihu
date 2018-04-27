@@ -18,8 +18,8 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
 
     def get_object(self, queryset=None):
         union_list = []
-        for followship in self.request.user.follow_list.all():
-            union_list.append(followship.follow.answers.all())
+        for follower in self.request.user.followings.all():
+            union_list.append(follower.answers.all())
         answers_list = self.request.user.answers.all().union(*union_list).order_by('-create_time')
         paginator = Paginator(answers_list, 10)
         return paginator
@@ -130,14 +130,7 @@ class FollowingView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FollowingView, self).get_context_data(**kwargs)
-        user = self.request.user
-        following_list = []
-        followship_list = self.object.follow_list.all()
-        for followship in followship_list:
-            if user.is_authenticated:
-                followship.follow.is_followed = user.is_following(followship.follow)
-            following_list.append(followship.follow)
-        context['following_list'] = following_list
+        context['followers_list'] = self.request.user.followings.all()
         context['FollowingView'] = True
         return context
 
@@ -146,14 +139,7 @@ class FollowerView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FollowerView, self).get_context_data(**kwargs)
-        user = self.request.user
-        followers_list = []
-        followship_list = self.object.fun_list.all()
-        for followship in followship_list:
-            if user.is_authenticated:
-                followship.fun.is_followed = user.is_following(followship.fun)
-            followers_list.append(followship.fun)
-        context['followers_list'] = followers_list
+        context['followers_list'] = self.request.user.followings.all()
         context['FollowerView'] = True
         return context
 

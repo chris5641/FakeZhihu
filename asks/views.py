@@ -74,7 +74,7 @@ class DetailView(generic.FormView, generic.DetailView):
         return render(request, 'answerslist.html', context)
 
 
-class AnswerDetailView(generic.DetailView):
+class AnswerDetailView(generic.FormView, generic.DetailView):
     model = Ask
     form_class = AnswerForm
     template_name = 'asks/detail.html'
