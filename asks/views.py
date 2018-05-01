@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.views import generic
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 from fakeZhihu.settings import logger
 from answers.forms import AnswerForm
@@ -60,6 +61,7 @@ class DetailView(generic.FormView, generic.DetailView):
         super(DetailView, self).get(request, *args, **kwargs)
         vote_list = []
         collection_list = []
+        self.object.click()
         page = request.GET.get('page', None)
         if page is None:
             context = self.get_context_data(**kwargs)
@@ -105,5 +107,43 @@ class AnswerDetailView(generic.FormView, generic.DetailView):
         context['topics_list'] = topics_list
         context['asks'] = asks
         context['answer_view'] = True
+        self.object.click()
         return context
+
+
+@login_required
+def follow_ask(request, pk):
+    data = dict(
+        r=1,
+    )
+    if request.method == 'POST':
+        user = request.user
+        ask = Ask.objects.filter(id=pk).first()
+        if ask is not None:
+            ret = user.follow_ask(ask)
+            if ret is True:
+                data['r'] = 0
+                logger.info('{} 关注了问题： {}'.format(user, ask.id))
+            else:
+                logger.error('{} 关注问题失败: {}'.format(user, ask.id))
+    return JsonResponse(data, status=201)
+
+
+@login_required
+def unfollow_ask(request, pk):
+    data = dict(
+        r=1,
+    )
+    if request.method == 'POST':
+        user = request.user
+        ask = Ask.objects.filter(id=pk).first()
+        if ask is not None:
+            ret = user.unfollow_ask(ask)
+            if ret is True:
+                data['r'] = 0
+                logger.info('{} 取消关注了问题： {}'.format(user, ask.id))
+            else:
+                logger.error('{} 取消关注问题失败: {}'.format(user, ask.id))
+    return JsonResponse(data, status=201)
+
 

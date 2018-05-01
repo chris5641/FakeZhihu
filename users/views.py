@@ -20,6 +20,8 @@ class IndexView(LoginRequiredMixin, generic.DetailView):
         union_list = []
         for follower in self.request.user.followings.all():
             union_list.append(follower.answers.all())
+        for ask in self.request.user.follow_asks.all():
+            union_list.append(ask.answers.all())
         answers_list = self.request.user.answers.all().union(*union_list).order_by('-create_time')
         paginator = Paginator(answers_list, 10)
         return paginator
@@ -77,6 +79,11 @@ class DetailView(generic.DetailView):
         if self.request.user.is_authenticated:
             context['is_following'] = self.request.user.is_following(self.object)
         return context
+
+    def get(self, request, *args, **kwargs):
+        ret = super(DetailView, self).get(request, *args, **kwargs)
+        self.object.click()
+        return ret
 
 
 class AnswerView(DetailView):
@@ -191,6 +198,15 @@ class FollowerView(DetailView):
         context = super(FollowerView, self).get_context_data(**kwargs)
         context['followers_list'] = self.request.user.followings.all()
         context['FollowerView'] = True
+        return context
+
+
+class FollowAskView(DetailView):
+
+    def get_context_data(self, **kwargs):
+        context = super(FollowAskView, self).get_context_data(**kwargs)
+        context['asks_list'] = self.request.user.follow_asks.all().order_by('-create_time')
+        context['FollowAskView'] = True
         return context
 
 

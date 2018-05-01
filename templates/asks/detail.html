@@ -33,15 +33,21 @@
                             <div class="col-xs-3">
                                 <div class="NumberBoard" style="border-left: solid 1px #ebebeb">
                                     <div class="NumberBoard-itemname">被浏览</div>
-                                    <div class="NumberBoard-itemnum">32</div>
+                                    <div class="NumberBoard-itemnum">{{ ask.clicks }}</div>
                                 </div>
                                 <div class="NumberBoard">
                                     <div class="NumberBoard-itemname">关注者</div>
-                                    <div class="NumberBoard-itemnum">11</div>
+                                    <div class="NumberBoard-itemnum">{{ ask.followers.count }}</div>
                                 </div>
                             </div>
                         </div>
-                        <button class="Button Button-blue" style="margin-left: 0">关注问题</button>
+                        {% if ask in user.follow_asks.all %}
+                            <button class="Button Button-blue" onclick="followAsk(this, {{ ask.id }})" style="margin-left: 0" hidden>关注问题</button>
+                            <button class="Button Button-grey" onclick="unfollowAsk(this, {{ ask.id }})" onmouseenter="enter(this)" onmouseleave="leave(this)" style="margin-left: 0;width: 90px">已关注</button>
+                        {% else %}
+                            <button class="Button Button-blue" onclick="followAsk(this, {{ ask.id }})" style="margin-left: 0">关注问题</button>
+                            <button class="Button Button-grey" onclick="unfollowAsk(this, {{ ask.id }})" onmouseenter="enter(this)" onmouseleave="leave(this)" style="margin-left: 0;width: 90px" hidden>已关注</button>
+                        {% endif %}
                         <button id="answer-btn" class="Button Button-white">
                             <i class="icon icon-pencil"></i> 写回答</button>
                     </div>

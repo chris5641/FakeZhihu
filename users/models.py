@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from answers.models import Answer
+from asks.models import Ask
 
 
 class User(AbstractUser):
@@ -12,9 +13,11 @@ class User(AbstractUser):
     intro = models.CharField(max_length=64, blank=True, verbose_name='简介')
     work = models.CharField(max_length=64, blank=True, verbose_name='工作行业')
     image_url = models.URLField(blank=True, verbose_name='头像')
+    clicks = models.IntegerField(default=0, verbose_name='访问量')
     followings = models.ManyToManyField('self', related_name='funs', symmetrical=False, verbose_name='关注')
-    vote_answers = models.ManyToManyField(Answer, related_name='vote_user', verbose_name='点赞答案')
-    collections = models.ManyToManyField(Answer, related_name='collection_user', verbose_name='收藏')
+    vote_answers = models.ManyToManyField(Answer, related_name='vote_user', blank=True, verbose_name='点赞答案')
+    collections = models.ManyToManyField(Answer, related_name='collection_user', blank=True, verbose_name='收藏')
+    follow_asks = models.ManyToManyField(Ask, related_name='followers', blank=True, verbose_name='关注问题')
 
     def __str__(self):
         return self.username
@@ -34,6 +37,10 @@ class User(AbstractUser):
             return url.format(id=image_id)
         else:
             return self.image_url
+
+    def click(self):
+        self.clicks += 1
+        self.save()
 
     def follow(self, user_id):
         try:
@@ -87,6 +94,21 @@ class User(AbstractUser):
 
     def is_collected(self, answer):
         return self.collections.filter(id=answer.id).exists()
+
+    def follow_ask(self, ask):
+        if self.is_follow_ask(ask):
+            return False
+        self.follow_asks.add(ask)
+        return True
+
+    def unfollow_ask(self, ask):
+        if not self.is_follow_ask(ask):
+            return False
+        self.follow_asks.remove(ask)
+        return True
+
+    def is_follow_ask(self, ask):
+        return self.follow_asks.filter(id=ask.id).exists()
 
     @staticmethod
     def _get_answer(votemap):

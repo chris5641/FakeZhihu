@@ -327,3 +327,10 @@ a.ask-topic:hover {
     width: 60px;
     height: 60px;
 }
+
+.user-item {
+    font-size: 15px;
+    color: black;
+    padding: 10px 5px;
+    border-bottom: solid #ebebeb 1px;
+}

@@ -106,6 +106,53 @@ function uncollect(x, id) {
     }).catch(e => console.log(e));
 }
 
+function followAsk(x, id) {
+    let link = '/asks/' + id + '/follow/';
+    let headers = new Headers();
+    headers.append('X-CSRFToken', getCookie('csrftoken'));
+    fetch(link, {
+        headers: headers,
+        method: 'POST',
+        credentials: 'include'
+    }).then( response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(response)
+        }
+    }).then(data => {
+        if (!data.r) {
+            $(x).hide().next().show();
+        } else {
+            alert('error！')
+        }
+    }).catch(e => console.log(e));
+}
+
+function unfollowAsk(x, id) {
+    let link = '/asks/' + id + '/unfollow/';
+    let headers = new Headers();
+    headers.append('X-CSRFToken', getCookie('csrftoken'));
+    fetch(link, {
+        headers: headers,
+        method: 'POST',
+        credentials: 'include'
+    }).then( response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error(response)
+        }
+    }).then(data => {
+        if (!data.r) {
+            $(x).hide().prev().show();
+        } else {
+            alert('error！')
+        }
+    }).catch(e => console.log(e));
+
+}
+
 function readmore(x, id) {
     let link = '/answers/' + id + '/content/';
     fetch(link, {
