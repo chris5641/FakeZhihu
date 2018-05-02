@@ -15,7 +15,7 @@
         }
     </style>
 {% endblock %}
-{% block content %}
+{% block header %}
     <div class="ask-header">
         <div class="container-fulid">
             <div class="row">
@@ -45,125 +45,114 @@
                             <button class="Button Button-blue" onclick="followAsk(this, {{ ask.id }})" style="margin-left: 0" hidden>关注问题</button>
                             <button class="Button Button-grey" onclick="unfollowAsk(this, {{ ask.id }})" onmouseenter="enter(this)" onmouseleave="leave(this)" style="margin-left: 0;width: 90px">已关注</button>
                         {% else %}
-                            <button class="Button Button-blue" onclick="followAsk(this, {{ ask.id }})" style="margin-left: 0">关注问题</button>
+                            {% if user.is_authenticated %}
+                                <button class="Button Button-blue" onclick="followAsk(this, {{ ask.id }})" style="margin-left: 0">关注问题</button>
+                            {% else %}
+                                <button class="Button Button-blue" data-toggle="modal" data-target="#loginModal" style="margin-left: 0">关注问题</button>
+                            {% endif %}
                             <button class="Button Button-grey" onclick="unfollowAsk(this, {{ ask.id }})" onmouseenter="enter(this)" onmouseleave="leave(this)" style="margin-left: 0;width: 90px" hidden>已关注</button>
                         {% endif %}
-                        <button id="answer-btn" class="Button Button-white">
-                            <i class="icon icon-pencil"></i> 写回答</button>
+                        {% if user.is_authenticated %}
+                            <button id="answer-btn" class="Button Button-white"><i class="icon icon-pencil"></i> 写回答</button>
+                        {% else %}
+                            <button data-toggle="modal" data-target="#loginModal" class="Button Button-white"><i class="icon icon-pencil"></i> 写回答</button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <div class="container-fulid">
-        <div class="row">
-            <div class="col-xs-2"></div>
-            <div class="col-xs-8">
-                <div class="row">
-                    <div class="col-xs-8">
-                        <div id="answer-card" class="card" style="display: none">
-                            <div class="answer-card-header">
-                                <img src="{{ user.get_image_url }}" class="img-rounded" width="38px" height="38px">
-                                <div class="user-info">
-                                    <div class="user-name">{{ user.nickname }}</div>
-                                    <div class="user-intro">{{ user.intro }}</div>
-                                </div>
-                            </div>
-
-                            <div id="editor1" class="toolbar"></div>
-                            <div id="editor2" class="editor"></div>
-                            <div style="min-height: 40px">
-                                <form action="{% url 'asks:post_answer' ask.id %}" method="post">
-                                    {% csrf_token %}
-                                    {{ form.content }}
-                                    {{ form.content_text }}
-                                    <button type="submit" class="btn btn-primary"
-                                            style="float: right;margin-right: 10px">回答问题
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    {% if answer_view %}
-                        {% if ask.answers.count > 1 %}
-                        <div class="card button-card">
-                            <a href="{% url 'asks:detail' ask.id %}">查看全部{{ ask.answers.count }}个回答</a>
-                        </div>
-                        {% endif %}
-                        <div class="card">
-                            {% include "answer_block.html" %}
-                        </div>
-                        {% if ask.answers.count > 1 %}
-                        <div class="card button-card">
-                            <a href="{% url 'asks:detail' ask.id %}">查看全部{{ ask.answers.count }}个回答</a>
-                        </div>
-                        {% endif %}
-                    {% else %}
-                        <div class="card" id="answers-list">
-                            <div style="padding: 10px; font-size: 15px; font-weight: 600">{{ ask.answers.count }}个回答</div>
-                            {% for answer in answers %}
-                                {% include "answer_block.html" %}
-                            {% endfor %}
-                            {% if answers.has_next %}
-                                <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-
-                    </div>
-
-                    <div class="col-xs-4">
-                        {% if answer_view %}
-                            <div class="card">
-                                <div class="card-header">关于作者</div>
-                                <div>
-                                    <img src="{{ answer.author.get_image_url }}" class="pull-left image-card">
-                                    <a href="{% url 'users:detail' answer.author.id %}" class="user-name"><h2>{{ answer.author.nickname }}</h2></a>
-                                    <p>{{ answer.author.intro }}</p>
-                                </div>
-                                <br>
-                                <div class="col-xs-6">
-                                    <a href="{% url 'users:answers' answer.author.id %}">
-                                    <div class="follow-board">
-                                        <div class="NumberBoard-itemname">回答</div>
-                                        <div class="NumberBoard-itemnum">{{ answer.author.answers.count }}</div>
-                                    </div>
-                                    </a>
-
-                                </div>
-                                <div class="col-xs-6">
-                                    <a href="{% url 'users:followers' answer.author.id %}">
-                                    <div class="follow-board">
-                                        <div class="NumberBoard-itemname">关注者</div>
-                                        <div class="NumberBoard-itemnum">{{ answer.author.funs.count }}</div>
-                                    </div>
-                                    </a>
-                                </div>
-                            </div>
-                        {% endif %}
-                        <div class="card">
-                            <div class="card-header">其他问题</div>
-                            {% for ask in asks %}
-                                <div class="card-list">
-                                    <a href="{% url 'asks:detail' ask.id %}">{{ ask.title }}</a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <footer style="line-height: 26px">
-                            <a>刘看山</a><span> · </span><a>知乎指南</a><span> · </span><a>知乎协议</a><span> · </span><a>隐私政策</a><br>
-                            <a>应用</a><span> · </span><a>工作</a><span> · </span><a>申请开通知乎机构号</a><br>
-                            <a>侵权举报</a><span> · </span><a>网上有害信息举报专区</a><br>
-                            <a>违法和不良信息举报: 010-82716601</a><br>
-                            <a>儿童色情信息举报专区</a><br>
-                            <a>联系我们 © 2018 知乎</a><br>
-                        </footer>
-                    </div>
-                </div>
-
+{% block main %}
+    <div id="answer-card" class="card" style="display: none">
+        <div class="answer-card-header">
+            <img src="{{ user.get_image_url }}" class="img-rounded" width="38px" height="38px">
+            <div class="user-info">
+                <div class="user-name">{{ user.nickname }}</div>
+                <div class="user-intro">{{ user.intro }}</div>
             </div>
+        </div>
 
+        <div id="editor1" class="toolbar"></div>
+        <div id="editor2" class="editor"></div>
+        <div style="min-height: 40px">
+            <form action="{% url 'asks:post_answer' ask.id %}" method="post">
+                {% csrf_token %}
+                {{ form.content }}
+                {{ form.content_text }}
+                <button type="submit" class="btn btn-primary"
+                        style="float: right;margin-right: 10px">回答问题
+                </button>
+            </form>
         </div>
     </div>
+    {% if answer_view %}
+        {% if ask.answers.count > 1 %}
+        <div class="card button-card">
+            <a href="{% url 'asks:detail' ask.id %}">查看全部{{ ask.answers.count }}个回答</a>
+        </div>
+        {% endif %}
+        <div class="card">
+            {% include "answer_block.html" %}
+        </div>
+        {% if ask.answers.count > 1 %}
+        <div class="card button-card">
+            <a href="{% url 'asks:detail' ask.id %}">查看全部{{ ask.answers.count }}个回答</a>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="card" id="answers-list">
+            <div style="padding: 10px; font-size: 15px; font-weight: 600">{{ ask.answers.count }}个回答</div>
+            {% for answer in answers %}
+                {% include "answer_block.html" %}
+            {% endfor %}
+            {% if answers.has_next %}
+                <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar %}
+
+    {% if answer_view %}
+        <div class="card">
+            <div class="card-header">关于作者</div>
+            <div>
+                <img src="{{ answer.author.get_image_url }}" class="pull-left image-card">
+                <a href="{% url 'users:detail' answer.author.id %}" class="user-name"><h2>{{ answer.author.nickname }}</h2></a>
+                <p>{{ answer.author.intro }}</p>
+            </div>
+            <br>
+            <div class="col-xs-6">
+                <a href="{% url 'users:answers' answer.author.id %}">
+                <div class="follow-board">
+                    <div class="NumberBoard-itemname">回答</div>
+                    <div class="NumberBoard-itemnum">{{ answer.author.answers.count }}</div>
+                </div>
+                </a>
+
+            </div>
+            <div class="col-xs-6">
+                <a href="{% url 'users:followers' answer.author.id %}">
+                <div class="follow-board">
+                    <div class="NumberBoard-itemname">关注者</div>
+                    <div class="NumberBoard-itemnum">{{ answer.author.funs.count }}</div>
+                </div>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+        <div class="card">
+            <div class="card-header">其他问题</div>
+            {% for ask in asks %}
+                <div class="card-list">
+                    <a href="{% url 'asks:detail' ask.id %}">{{ ask.title }}</a>
+                </div>
+            {% endfor %}
+        </div>
+
 
 {% endblock %}
 

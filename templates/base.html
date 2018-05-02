@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="//cdn.bootcss.com/zui/1.8.1/css/zui.min.css">
+    <link href="//cdn.bootcss.com/zui/1.8.1/css/zui.min.css" rel="stylesheet">
     <link href="//cdn.bootcss.com/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/social-share.js/1.0.16/css/share.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/mystyle.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
@@ -19,6 +20,7 @@
     <script src="//cdn.bootcss.com/zui/1.8.1/js/zui.min.js"></script>
     <script src="//cdn.bootcss.com/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
     <script src="//cdn.bootcss.com/fetch/2.0.4/fetch.min.js"></script>
+    <script src="//cdn.bootcss.com/social-share.js/1.0.16/js/social-share.min.js"></script>
     <script src="{% static 'js/myfunc.js' %}"></script>
 
 </head>
@@ -28,9 +30,9 @@
         <div class="row">
             <div class="col-xs-1"></div>
             <div class="col-xs-10 ">
-                <!-- 导航头部 -->
+
                 <div class="navbar-header">
-                    <!-- 移动设备上的导航切换按钮 -->
+
                     <button type="button" class="navbar-toggle" data-toggle="collapse"
                             data-target=".navbar-collapse-example">
                         <span class="sr-only">切换导航</span>
@@ -38,12 +40,10 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <!-- 品牌名称或logo -->
+
                     <a class="navbar-brand" href="{% url 'index' %}" style="font-size: 30px; color: #0084ff">知乎</a>
                 </div>
-                <!-- 导航项目 -->
                 <div class="collapse navbar-collapse navbar-collapse-example">
-                    <!-- 一般导航项目 -->
                     <ul class="nav navbar-nav">
                         <li><a href="/">首页</a></li>
                         <li><a href="{% url 'explore' %}">发现</a></li>
@@ -56,11 +56,14 @@
                         </div>
                         <button type="submit" class="btn btn-default">搜索</button>
                     </form>
-                    <button class="Button Button-blue nav-btn" type="button" style="margin-top: 3px" data-toggle="modal" data-target="#askModal">提问</button>
+                    {% if user.is_authenticated %}
+                       <button class="Button Button-blue nav-btn" type="button" style="margin-top: 3px" data-toggle="modal" data-target="#askModal">提问</button>
+                    {% else %}
+                        <button class="Button Button-blue nav-btn" type="button" style="margin-top: 3px" data-toggle="modal" data-target="#loginModal" >提问</button>
+                    {% endif %}
 
                     <ul class="nav navbar-nav navbar-right">
                         {% if user.is_authenticated %}
-                            <!-- 导航中的下拉菜单 -->
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="padding: 5px">
                                     <img src="{{ user.get_image_url }}" class="img-rounded" width="30" height="30"></a>
@@ -169,7 +172,30 @@
         </div>
     </div>
 </div>
-<div style="margin-top: 45px">{% block content %}{% endblock %}</div>
+<div style="margin-top: 45px">{% block content %}
+    {% block header %}{% endblock %}
+    <div class="container-fulid">
+        <div class="row">
+            <div class="col-xs-2"></div>
+            <div class="col-xs-8">
+                <div class="row">
+                    <div class="col-xs-8">{% block main %}{% endblock %}</div>
+                    <div class="col-xs-4">{% block sidebar %}{% endblock %}
+                    <footer style="line-height: 26px">
+                        <a>刘看山</a><span> · </span><a>知乎指南</a><span> · </span><a>知乎协议</a><span> · </span><a>隐私政策</a><br>
+                        <a>应用</a><span> · </span><a>工作</a><span> · </span><a>申请开通知乎机构号</a><br>
+                        <a>侵权举报</a><span> · </span><a>网上有害信息举报专区</a><br>
+                        <a>违法和不良信息举报: 010-82716601</a><br>
+                        <a>儿童色情信息举报专区</a><br>
+                        <a>联系我们 © 2018 知乎</a><br>
+                    </footer>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}</div>
 <script>
     $(document).ready(function () {
         $('.bootstrap-tagsinput').attr('style', 'width: 100%');

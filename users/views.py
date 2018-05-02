@@ -187,7 +187,8 @@ class FollowingView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FollowingView, self).get_context_data(**kwargs)
-        context['followers_list'] = self.request.user.followings.all()
+        if self.request.user.is_authenticated:
+            context['followers_list'] = self.request.user.followings.all()
         context['FollowingView'] = True
         return context
 
@@ -196,7 +197,8 @@ class FollowerView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FollowerView, self).get_context_data(**kwargs)
-        context['followers_list'] = self.request.user.followings.all()
+        if self.request.user.is_authenticated:
+            context['followers_list'] = self.request.user.followings.all()
         context['FollowerView'] = True
         return context
 

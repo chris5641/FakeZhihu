@@ -1,60 +1,36 @@
 {% extends "base.html" %}
-{% block content %}
-    <div class="container-fulid">
-        <div class="row">
-            <div class="col-xs-2"></div>
-            <div class="col-xs-8">
-                <div class="row">
-                    <div class="col-xs-8">
-                        {% if topic %}
-                            <div class="card">
-                                <div class="col-xs-4" style="max-width: 200px">
-                                    <img src="https://i.loli.net/2018/04/21/5adb52d71941e.jpg" class="img-rounded" width="100px" height="100px" style="margin: 10px 0">
-                                </div>
-                                <div class="col-xs-8" style="margin-top: 30px">
-                                    <h1>{{ topic.name }}</h1>
-                                </div>
-                            </div>
-                        {% endif %}
-                        <div class="card" id="answers-list">
-                            {% for answer in answers %}
-                                {% include "answer_block.html" %}
-                            {% endfor %}
-                            {% if answers.has_next %}
-                                <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
-                            {% endif %}
-                        </div>
-
-                    </div>
-
-                    <div class="col-xs-4">
-                        <div class="card">
-                            <div class="card-header">
-                                最新问题
-                            </div>
-                            {% for ask in asks%}
-                                <div class="card-list">
-                                    <a href="{% url 'asks:detail' ask.id %}">{{ ask.title }}</a>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        <footer style="line-height: 26px">
-                            <a>刘看山</a><span> · </span><a>知乎指南</a><span> · </span><a>知乎协议</a><span> · </span><a>隐私政策</a><br>
-                            <a>应用</a><span> · </span><a>工作</a><span> · </span><a>申请开通知乎机构号</a><br>
-                            <a>侵权举报</a><span> · </span><a>网上有害信息举报专区</a><br>
-                            <a>违法和不良信息举报: 010-82716601</a><br>
-                            <a>儿童色情信息举报专区</a><br>
-                            <a>联系我们 © 2018 知乎</a><br>
-                        </footer>
-                    </div>
-                </div>
-
+{% block main %}
+    {% if topic %}
+        <div class="card">
+            <div class="col-xs-4" style="max-width: 200px">
+                <img src="https://i.loli.net/2018/04/21/5adb52d71941e.jpg" class="img-rounded" width="100px" height="100px" style="margin: 10px 0">
             </div>
-
+            <div class="col-xs-8" style="margin-top: 30px">
+                <h1>{{ topic.name }}</h1>
+            </div>
         </div>
+    {% endif %}
+    <div class="card" id="answers-list">
+        {% for answer in answers %}
+            {% include "answer_block.html" %}
+        {% endfor %}
+        {% if answers.has_next %}
+            <button class="Button Button-white get-more" onclick="answersMore(this, {{ answers.next_page_number }})">更多</button>
+        {% endif %}
     </div>
+{% endblock %}
 
+{% block sidebar %}
+    <div class="card">
+        <div class="card-header">
+            最新问题
+        </div>
+        {% for ask in asks%}
+            <div class="card-list">
+                <a href="{% url 'asks:detail' ask.id %}">{{ ask.title }}</a>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block script %}
