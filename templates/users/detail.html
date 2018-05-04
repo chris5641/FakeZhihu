@@ -182,7 +182,7 @@
             <a href="{% url 'users:followers' people.id %}" class="tab-link">关注他的人</a>
             <a href="{% url 'users:follow_asks' people.id %}" class="tab-link follow-active">关注的问题</a>
         </div>
-        {% for ask in asks_list.all %}
+        {% for ask in people.follow_asks.all %}
             <div style="border-top: solid 1px #f6f6f6">
                 <div class="answer-ask-header"><a href="{% url 'asks:detail' ask.id %}" style="color: black">{{ ask.title }}</a></div>
                 <div class="content-footer">{{ ask.create_time|date:'Y-m-d' }}&nbsp;·&nbsp;{{ ask.answers.count }}个回答&nbsp;·&nbsp;{{ ask.followers.count }}个关注</div>
@@ -215,7 +215,7 @@
         </div>
     </div>
     <div class="user-item">
-        <a href="{% url 'users:follow_asks' people.id %}"><span>关注的问题</span><span style="float: right">12</span></a>
+        <a href="{% url 'users:follow_asks' people.id %}"><span>关注的问题</span><span style="float: right">{{ people.follow_asks.count }}</span></a>
     </div>
     <div class="user-item"><a>个人主页被浏览{{ people.clicks }}次</a></div>
 {% endblock %}
