@@ -24,7 +24,7 @@
                                 {% if user == people %}
                                     <a href="{% url 'users:profile' %}" class="Button Button-white" style="float: right">编辑个人资料</a>
                                 {% else %}
-                                    <button class="Button Button-white" style="float: right"><i class="icon icon-comments" onclick=""></i> 私信</button>
+{#                                    <button class="Button Button-white" style="float: right"><i class="icon icon-comments" onclick=""></i> 私信</button>#}
                                     {% if is_following %}
                                     <a href="{% url 'users:unfollow' people.id %}"><button class="Button Button-grey" onmouseenter="enter(this)" onmouseleave="leave(this)" style="float: right;width: 90px">已关注</button></a>
                                     {% else %}

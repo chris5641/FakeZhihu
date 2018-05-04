@@ -1,32 +1,10 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
-from rest_framework import mixins
-from rest_framework import filters
-from rest_framework.pagination import PageNumberPagination
 
 from fakeZhihu.settings import logger
 from .models import Comment
-from .serializers import CommentSerializer
 from answers.models import Answer
-
-
-class CommentPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-
-
-class CommentViewset(mixins.ListModelMixin, viewsets.GenericViewSet):
-    pagination_class = CommentPagination
-    serializer_class = CommentSerializer
-    queryset = Comment.objects.all().order_by('-create_time')
-    filter_backends = (DjangoFilterBackend, )
-    filter_fields = ('answer', )
 
 
 class CreatCommentView(LoginRequiredMixin, generic.CreateView):

@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404, redirect, reverse
-from django.http import HttpResponse, HttpResponseNotFound, JsonResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponseNotFound, JsonResponse
 from django.views import generic
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin

@@ -1,10 +1,6 @@
 from django.urls import path
 
-from fakeZhihu.urls import router
 from . import views
-from .models import Comment
-
-router.register('comments', views.CommentViewset)
 
 app_name = 'comments'
 urlpatterns = [

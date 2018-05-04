@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 
 from fakeZhihu.settings import logger
 from answers.forms import AnswerForm
-from topics.models import Topic
 from .models import Ask
 
 

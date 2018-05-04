@@ -110,7 +110,3 @@ class User(AbstractUser):
     def is_follow_ask(self, ask):
         return self.follow_asks.filter(id=ask.id).exists()
 
-    @staticmethod
-    def _get_answer(votemap):
-        return votemap.answer
-
