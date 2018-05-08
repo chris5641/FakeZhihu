@@ -24,11 +24,14 @@
                                 {% if user == people %}
                                     <a href="{% url 'users:profile' %}" class="Button Button-white" style="float: right">编辑个人资料</a>
                                 {% else %}
-{#                                    <button class="Button Button-white" style="float: right"><i class="icon icon-comments" onclick=""></i> 私信</button>#}
                                     {% if is_following %}
                                     <a href="{% url 'users:unfollow' people.id %}"><button class="Button Button-grey" onmouseenter="enter(this)" onmouseleave="leave(this)" style="float: right;width: 90px">已关注</button></a>
                                     {% else %}
-                                    <a href="{% url 'users:follow' people.id %}"><button class="Button Button-blue" style="float: right;width: 90px"><i class="icon icon-plus"></i> 关注</button></a>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'users:follow' people.id %}"><button class="Button Button-blue" style="float: right;width: 90px"><i class="icon icon-plus"></i> 关注</button></a>
+                                        {% else %}
+                                            <button class="Button Button-blue" data-toggle="modal" data-target="#loginModal" style="float: right;width: 90px"><i class="icon icon-plus"></i> 关注</button>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             </p>

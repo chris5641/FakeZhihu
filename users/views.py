@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, reverse
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.contrib import auth
 from django.views import generic
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -244,14 +244,18 @@ def login(request):
     if request.user.is_authenticated:
         return redirect('/')
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        data = dict()
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
         user = auth.authenticate(username=username, password=password)
         if user is not None and user.is_active:
             auth.login(request, user)
             logger.info('login: {}'.format(user))
-            return redirect(request.META.get('HTTP_REFERER', '/'))
+            data['ok'] = True
+        else:
+            data['ok'] = False
+            data['message'] = '用户名或密码错误'
+        return JsonResponse(data, status=200)
     else:
         form = LoginForm()
     return render(request, 'users/login.html', {'form': form})
@@ -267,12 +271,17 @@ def register(request):
     if request.user.is_authenticated:
         return redirect('/')
     if request.method == 'POST':
+        data = dict()
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             auth.login(request, user)
             logger.info('register: {}'.format(user))
-            return redirect(request.META.get('HTTP_REFERER', '/'))
+            data['ok'] = True
+        else:
+            data['ok'] = False
+            data['errors'] = form.errors
+        return JsonResponse(data, status=200)
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})

@@ -125,15 +125,17 @@
                 <h1 style="font-weight: 400">登录知乎，发现更大的世界</h1>
             </div>
             <div class="login-content">
-                <form action="/login/" method="post">
+                <form id="login-form">
                     {% csrf_token %}
-                    <div class="form-group login-input-control">
+                    <div id="login-username-input" class="form-group login-input-control">
                         <input type="text" name="username" class="form-control" placeholder="用户名" required>
                     </div>
-                    <div class="form-group login-input-control">
+                    <div id="login-password-input" class="form-group login-input-control">
                         <input type="password" name="password" class="form-control" placeholder="密码" required>
+                        <div id="login-message" class="help-block"></div>
                     </div>
-                    <button type="submit" class="Button Button-blue" style="width: 310px;">登录</button>
+
+                    <button type="submit" class="Button Button-blue" onclick="login();return false" style="width: 310px;">登录</button>
                 </form>
             </div>
         </div>
@@ -149,24 +151,29 @@
                 <h1 style="font-weight: 400">登录知乎，发现更大的世界</h1>
             </div>
             <div class="login-content">
-                <form action="/register/" method="post">
+                <form id="register-form">
                     {% csrf_token %}
-                    <div class="form-group login-input-control">
+                    <div id="register-input-1" class="form-group login-input-control">
                         <input type="text" name="username" class="form-control" placeholder="用户名" required>
+                        <div id="register-message-1" class="help-block"></div>
                     </div>
-                    <div class="form-group login-input-control">
+                    <div id="register-input-2" class="form-group login-input-control">
                         <input type="email" name="email" class="form-control" placeholder="邮箱" required>
+                        <div id="register-message-2" class="help-block"></div>
                     </div>
-                    <div class="form-group login-input-control">
+                    <div id="register-input-3" class="form-group login-input-control">
                         <input type="text" name="nickname" class="form-control" placeholder="昵称" required>
+                        <div id="register-message-3" class="help-block"></div>
                     </div>
-                    <div class="form-group login-input-control">
+                    <div id="register-input-4" class="form-group login-input-control">
                         <input type="password" name="password1" class="form-control" placeholder="密码" required>
+                        <div id="register-message-4" class="help-block"></div>
                     </div>
-                    <div class="form-group login-input-control">
+                    <div id="register-input-5" class="form-group login-input-control">
                         <input type="password" name="password2" class="form-control" placeholder="重复密码" required>
+                        <div id="register-message-5" class="help-block"></div>
                     </div>
-                    <button type="submit" class="Button Button-blue" style="width: 310px;">注册</button>
+                    <button type="submit" class="Button Button-blue" onclick="register();return false" style="width: 310px;">注册</button>
                 </form>
             </div>
         </div>

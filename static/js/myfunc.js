@@ -14,6 +14,67 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function login() {
+    $('#login-password-input').removeClass('has-error');
+    $('#login-username-input').removeClass('has-error');
+    $('#login-message').text('');
+    let link = '/login/';
+    fetch(link, {
+        method: 'POST',
+        body: new FormData(document.getElementById('login-form')),
+        // body: new FormData($('#login-form')),
+        credentials: 'include',
+    }).then( response => response.json()
+    ).then( data => {
+        if (data.ok) {
+            location.reload()
+        } else {
+            $('#login-password-input').addClass('has-error');
+            $('#login-username-input').addClass('has-error');
+            $('#login-message').text(data.message);
+        }
+    });
+}
+
+function register() {
+    for (let i = 1; i <= 5; i++) {
+        $('#register-input-'+i).removeClass('has-error');
+        $('#register-message-'+i).text('');
+    }
+    let link = '/register/';
+    fetch(link, {
+        method: 'POST',
+        body: new FormData(document.getElementById('register-form')),
+        credentials: 'include',
+    }).then( response => response.json()
+    ).then( data => {
+        if (data.ok) {
+            location.reload();
+        } else {
+            if (data.errors.username) {
+                $('#register-input-1').addClass('has-error');
+                $('#register-message-1').text(data.errors.username[0]);
+            }
+            if (data.errors.email) {
+                $('#register-input-2').addClass('has-error');
+                $('#register-message-2').text(data.errors.email[0]);
+            }
+            if (data.errors.nickname) {
+                $('#register-input-3').addClass('has-error');
+                $('#register-message-3').text(data.errors.nickname[0]);
+            }
+            if (data.errors.password1) {
+                $('#register-input-4').addClass('has-error');
+                $('#register-message-4').text(data.errors.password1[0]);
+            }
+            if (data.errors.password2) {
+                $('#register-input-5').addClass('has-error');
+                $('#register-message-5').text(data.errors.password2[0]);
+            }
+        }
+    });
+}
+
 function voteUp(x, id) {
     let headers = new Headers();
     headers.append('X-CSRFToken', getCookie('csrftoken'));
