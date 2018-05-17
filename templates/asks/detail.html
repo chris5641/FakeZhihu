@@ -1,6 +1,6 @@
 {% extends "base.html" %}
+{% load static %}
 {% block css %}
-<link href="https://cdn.bootcss.com/chosen/1.8.3/chosen.min.css" rel="stylesheet">
     <style>
         .toolbar {
             border: solid 1px #ebebeb;
@@ -157,7 +157,7 @@
 {% endblock %}
 
 {% block script %}
-    <script src="//cdn.bootcss.com/wangEditor/10.0.13/wangEditor.min.js"></script>
+    <script src="{% static 'js/wangEditor.min.js' %}"></script>
     <script>
         let E = window.wangEditor;
         let editor = new E('#editor1', '#editor2');
